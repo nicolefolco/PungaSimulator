@@ -44,16 +44,32 @@ const velocidad = 0.05; // porcentaje de distancia
             app.stage.addChild(jugador);
 
 // guardar posición del mouse
-            app.stage.eventMode = "static"; 
-            app.stage.on("pointermove", (e) => {
-                mouseX = e.global.x;
-                mouseY = e.global.y;
+            window.addEventListener("mousemove", (e) => {
+                const rect = app.view.getBoundingClientRect();
+                mouseX = e.clientX - rect.left;
+                mouseY = e.clientY - rect.top;
             });
 
+
             app.ticker.add(() => {
-                jugador.x += (mouseX - jugador.x) * velocidad
-                jugador.y += (mouseY - jugador.y) * velocidad
+                // Mover jugador hacia el mouse
+                jugador.x += (mouseX - jugador.x) * velocidad;
+                jugador.y += (mouseY - jugador.y) * velocidad;
+
+                // Mover civiles si están cerca del jugador
+                for (const civil of civiles) {
+                    const dx = jugador.x - civil.x;
+                    const dy = jugador.y - civil.y;
+                    const distancia = Math.sqrt(dx * dx + dy * dy);
+                    const radioVision = 150; // puedes ajustar esto
+
+                    if (distancia < radioVision) {
+                        civil.x += dx * 0.02;
+                        civil.y += dy * 0.02;
+                    }
+                }
             });
+
     }
 
 
