@@ -1,83 +1,29 @@
 <html>
-    <head>
-        <script src = "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/8.13.2/pixi.min.js"></script>
-    </head>
+<head>
 
-    <body>
+        <style>
+                body {
+                    margin: 0px
+                    }
+        </style>
+        
+        <script src = "pixi.js"></script>
+        <script src = "juego.js"></script>
+        <script src = "gameObject.js"></script>
+        <script src = "civiles.js"></script>
+
+</head>
+
+<body>
 
 <script>
-let app;
-let civiles = [];
-let jugador;
-let mouseX = 0;
-let mouseY = 0;
-const width = 1280;
-const height = 720;
-const velocidad = 0.05; // porcentaje de distancia 
-
-    async function initPIXI() {
-                app = new PIXI.Application();
-                await app.init({background: '#6495ED', width: width, height: height});
-
-            // Append the application canvas to the document body
-            document.body.appendChild(app.canvas);
-
-            const texture = await PIXI.Assets.load('https://pixijs.com/assets/bunny.png');
-
-            for (let i = 0; i < 10; i++ ){ // se repite el código hasta que i valga 10. (i++ es equivalente a i += 1, contando así las iteraciones)
-                const civil = new PIXI.Sprite(texture) // crea el sprite del conejito.
-                civil.x = Math.random() * width // le asigna una posición en x multiplicada por un número al azar entre 0 y el ancho de la pantalla.
-                civil.y = Math.random() * height  // le asigna una posición en x multiplicada por un número al azar entre 0 y el largo de la pantalla.
-                civiles.push(civil) // le suma a la variable civiles 1 conejito en cada iteración (repetición).
-
-                app.stage.addChild(civil); // agrega civiles al escenario
-            }
-
-// objeto del jugador
-            const textJugador = await PIXI.Assets.load("https://cdn-icons-png.flaticon.com/512/1622/1622535.png");
-            jugador = new PIXI.Sprite(textJugador)
-            jugador.anchor.set(0.5);
-            jugador.x = app.view.width / 2; // app.view es el canvas de pixi.js 
-            jugador.y = app.view.height / 2; // estas dos lineas (35 y 36) coloca al Sprite en el medio del canvas.
-            jugador.scale.set(0.1); // cambia el tamaño del Sprite
-
-            app.stage.addChild(jugador);
-
-// guardar posición del mouse
-            window.addEventListener("mousemove", (e) => {
-                const rect = app.view.getBoundingClientRect();
-                mouseX = e.clientX - rect.left;
-                mouseY = e.clientY - rect.top;
-            });
 
 
-            app.ticker.add(() => {
-                // Mover jugador hacia el mouse
-                jugador.x += (mouseX - jugador.x) * velocidad;
-                jugador.y += (mouseY - jugador.y) * velocidad;
-
-                // Mover civiles si están cerca del jugador
-                for (const civil of civiles) {
-                    const dx = jugador.x - civil.x;
-                    const dy = jugador.y - civil.y;
-                    const distancia = Math.sqrt(dx * dx + dy * dy);
-                    const radioVision = 150; // puedes ajustar esto
-
-                    if (distancia < radioVision) {
-                        civil.x += dx * 0.02;
-                        civil.y += dy * 0.02;
-                    }
-                }
-            });
-
-    }
+            const juego = new Juego()
 
 
-        initPIXI();
-
-        </script>
+</script>
 
     </body>
-
 
 </html>
