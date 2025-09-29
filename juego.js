@@ -6,7 +6,7 @@ mouseX = 0;
 mouseY = 0;
 width;
 height;
-velocidad = 0.05;
+velocidad = 0.01;
 
 constructor() {
     this.width = 1280;
@@ -66,11 +66,21 @@ async initPIXI() {
         this.mouseY = e.clientY - rect.top;
     });
 
-    // Loop
+    // Loop principal
     this.app.ticker.add(() => {
         // Mover jugador hacia el mouse
-        this.jugador.x += (this.mouseX - this.jugador.x) * this.velocidad;
-        this.jugador.y += (this.mouseY - this.jugador.y) * this.velocidad;
+        const dx = this.mouseX - this.jugador.x;
+        const dy = this.mouseY - this.jugador.y;
+
+        this.jugador.x += dx * this.velocidad;
+        this.jugador.y += dy * this.velocidad;
+
+        // Reflejar según dirección X
+        if (dx > 0) {
+            this.jugador.scale.x = -2;  // mirando a la derecha
+        } else if (dx < 0) {
+            this.jugador.scale.x = 2; // mirando a la izquierda
+        }
 
         // Civiles reaccionan
         for (const civil of this.civiles) {
