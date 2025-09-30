@@ -27,8 +27,8 @@ class Juego {
         fondo.height = this.height;
         this.app.stage.addChild(fondo);
 
-            // ==========================
-        // Definir área caminable 🚧
+        // ==========================
+        // Definir área caminable 
         // ==========================
         this.areaJuego = {
             xMin: 0,
@@ -120,7 +120,7 @@ class Juego {
             }
 
             // ========================
-            // 🚧 Limitar al área permitida
+            //  Limitar al área permitida
             // ========================
             this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
             this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));

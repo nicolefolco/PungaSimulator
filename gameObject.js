@@ -21,16 +21,16 @@ class Civil extends PIXI.AnimatedSprite {
         this.aceleracion.x = 0;
         this.aceleracion.y = 0;
 
-        // 1️⃣ Separación siempre prioritaria
+        // Separación siempre prioritaria
         const sep = this.calcularSeparacion();
         this.aceleracion.x += sep.x * 2; 
         this.aceleracion.y += sep.y * 2;
 
-        // 2️⃣ Cohesión y alineación suaves
+        //  Cohesión y alineación suaves
         this.cohesion();
         this.alineacion();
 
-        // 3️⃣ Perseguir jugador con separación incorporada
+        //  Perseguir jugador con separación incorporada
         const perseguir = this.perseguirJugadorConSeparacion();
         this.aceleracion.x += perseguir.x;
         this.aceleracion.y += perseguir.y;
@@ -126,7 +126,7 @@ class Civil extends PIXI.AnimatedSprite {
             // Vector hacia jugador
             let dir = { x: dx / dist, y: dy / dist };
 
-            // Añadimos fuerza de separación para vecinos cercanos
+            // fuerza de separación para vecinos cercanos
             const sep = this.calcularSeparacion();
             dir.x += sep.x * 1.5; 
             dir.y += sep.y * 1.5;
