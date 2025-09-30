@@ -21,6 +21,22 @@ class Juego {
 
         document.body.appendChild(this.app.canvas);
 
+        const texturaFondo = await PIXI.Assets.load('fondoEstacion.png');
+        const fondo = new PIXI.Sprite(texturaFondo);
+        fondo.width = this.width;
+        fondo.height = this.height;
+        this.app.stage.addChild(fondo);
+
+            // ==========================
+        // Definir área caminable 🚧
+        // ==========================
+        this.areaJuego = {
+            xMin: 0,
+            xMax: this.width,
+            yMin: 230,
+            yMax: this.height - 210
+        };
+
         // ===============================
         // CIVILES DESDE SPRITESHEET JSON
         // ===============================
@@ -88,10 +104,8 @@ class Juego {
         });
 
         // Loop principal
+        // Loop principal
         this.app.ticker.add(() => {
-            // ========================
-            // Mover jugador al mouse
-            // ========================
             const dx = this.mouseX - this.jugador.x;
             const dy = this.mouseY - this.jugador.y;
 
@@ -100,10 +114,16 @@ class Juego {
 
             // Reflejar jugador
             if (dx > 0) {
-                this.jugador.scale.x = -2;  // mirando a la derecha
+                this.jugador.scale.x = -2;
             } else if (dx < 0) {
-                this.jugador.scale.x = 2;   // mirando a la izquierda
+                this.jugador.scale.x = 2;
             }
+
+            // ========================
+            // 🚧 Limitar al área permitida
+            // ========================
+            this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
+            this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));
 
             // ========================
             // Civiles reaccionan
@@ -128,5 +148,6 @@ class Juego {
                 }
             }
         });
+
     }
 }
