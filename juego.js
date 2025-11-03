@@ -21,7 +21,7 @@ class Juego {
 
         document.body.appendChild(this.app.canvas);
 
-        const texturaFondo = await PIXI.Assets.load('fondoEstacion.png');
+        const texturaFondo = await PIXI.Assets.load('estacion_de_noche.png');
         const fondo = new PIXI.Sprite(texturaFondo);
         fondo.width = this.width;
         fondo.height = this.height;
@@ -56,13 +56,14 @@ class Juego {
         ];
 
         for (let i = 0; i < 10; i++) {
-            const civil = new PIXI.AnimatedSprite(framesCivil);
+            const civil = new Civil(framesCivil, Math.random() * this.width, Math.random() * this.height, this.Juego)
+            // const civil = new PIXI.AnimatedSprite(framesCivil);
             civil.anchor.set(0.5);
-            civil.animationSpeed = 0.15;
+            /*civil.animationSpeed = 0.15;
             civil.play();
             civil.x = Math.random() * this.width;
-            civil.y = Math.random() * this.height;
-            civil.scale.set(1.5);
+            civil.y = Math.random() * this.height; */
+            civil.scale.set(1.5); 
             civil.x = Math.max(this.areaJuego.xMin, Math.min(civil.x, this.areaJuego.xMax));
             civil.y = Math.max(this.areaJuego.yMin, Math.min(civil.y, this.areaJuego.yMax));
             this.app.stage.addChild(civil);
