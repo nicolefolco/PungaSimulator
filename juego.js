@@ -57,15 +57,14 @@ class Juego {
 
         for (let i = 0; i < 10; i++) {
             const civil = new PIXI.AnimatedSprite(framesCivil);
-
             civil.anchor.set(0.5);
             civil.animationSpeed = 0.15;
             civil.play();
-
             civil.x = Math.random() * this.width;
             civil.y = Math.random() * this.height;
             civil.scale.set(1.5);
-
+            civil.x = Math.max(this.areaJuego.xMin, Math.min(civil.x, this.areaJuego.xMax));
+            civil.y = Math.max(this.areaJuego.yMin, Math.min(civil.y, this.areaJuego.yMax));
             this.app.stage.addChild(civil);
             this.civiles.push(civil);
         }
@@ -73,6 +72,7 @@ class Juego {
         // ===============================
         // JUGADOR DESDE SPRITESHEET JSON
         // ===============================
+
         await PIXI.Assets.load("./pungatexture.json");
 
         const frames = [
@@ -103,7 +103,6 @@ class Juego {
             this.mouseY = e.clientY - rect.top;
         });
 
-        // Loop principal
         // Loop principal
         this.app.ticker.add(() => {
             const dx = this.mouseX - this.jugador.x;
