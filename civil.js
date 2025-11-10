@@ -9,15 +9,23 @@ class Civil extends PIXI.AnimatedSprite {
         this.animationSpeed = 0.15;
         this.play();
 
-        this.velocidad = { x: Math.random() * 2 - 1, y: Math.random() * 2 - 1 };
-        this.aceleracion = { x: 0, y: 0 };
-        this.maxVel = 2;
-        this.maxAcel = 0.15;
+        this.boid = new Boid();
 
-        this.radioVision = 120;
-        this.radioSeparacion = 50; // distancia mínima entre boids
     }
 
+    actualizar(dt) {
+        this.boid.actualizar();
+        this.x += this.boid.velocity.x;
+        this.y += this.boid.velocity.y;
+
+        if (this.boid.velocity.x > 0) this.scale.x = -1.5;
+        else this.scale.x = 1.5;
+    
+        this.x = Math.max(this.juego.areaJuego.xMin, Math.min(this.x, this.juego.areaJuego.xMax));
+        this.y = Math.max(this.juego.areaJuego.yMin, Math.min(this.y, this.juego.areaJuego.yMax));
+    }
+
+/*
     tick(dt) {
         // Reflejar sprite según dirección
         if (this.velocidad.x > 0) this.scale.x = -1;
@@ -25,4 +33,5 @@ class Civil extends PIXI.AnimatedSprite {
         this.x = Math.max(this.areaJuego.xMin, Math.min(this.x, this.areaJuego.xMax));
         this.y = Math.max(this.areaJuego.yMin, Math.min(this.y, this.areaJuego.yMax));
     }
+*/
 }

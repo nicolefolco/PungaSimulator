@@ -155,6 +155,7 @@ class Juego {
                         civil.scale.x = 1.5;  // mirando a la izquierda
                     }
                 }
+                civil.actualizar();
             }
         });
 
