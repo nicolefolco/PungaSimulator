@@ -9,8 +9,8 @@ class Juego {
     velocidad = 0.01;
 
     constructor() {
-        this.width = 1280;
-        this.height = 720;
+        this.width = 1920;
+        this.height = 1080;
         this.initPIXI();
     }
 
@@ -40,9 +40,9 @@ class Juego {
         // ===============================
         // CIVILES DESDE SPRITESHEET JSON
         // ===============================
-        await PIXI.Assets.load('./civiltexture.json');
+        // await PIXI.Assets.load('./civiltexture.json');
 
-        const framesCivil = [
+        /* const framesCivil = [
             PIXI.Texture.from("caminarIzquierda_Normal (1).png"),
             PIXI.Texture.from("caminarIzquierda_Normal (2).png"),
             PIXI.Texture.from("caminarIzquierda_Normal (3).png"),
@@ -53,17 +53,26 @@ class Juego {
             PIXI.Texture.from("caminarIzquierda_Normal (8).png"),
             PIXI.Texture.from("caminarIzquierda_Normal (9).png"),
             PIXI.Texture.from("caminarIzquierda_Normal (10).png"),
-        ];
+        ];*/
+
+        const sheet = await PIXI.Assets.load('./civiltexture.json');
+
+        const framesCivil = [];
+
+        for (let i = 1; i <= 10; i++) {
+            framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`])
+        }
 
         for (let i = 0; i < 10; i++) {
-            // const civil = new Civil(framesCivil, Math.random() * this.width, Math.random() * this.height, this.Juego)
-            const civil = new PIXI.AnimatedSprite(framesCivil);
+            const civil = new Civil(framesCivil, Math.random() * this.width, Math.random() * this.height, this)
+            /* const civil = new PIXI.AnimatedSprite(framesCivil);
             civil.anchor.set(0.5);
             civil.animationSpeed = 0.15;
             civil.play();
             civil.x = Math.random() * this.width;
             civil.y = Math.random() * this.height; 
             civil.scale.set(1.5); 
+            */
             civil.x = Math.max(this.areaJuego.xMin, Math.min(civil.x, this.areaJuego.xMax));
             civil.y = Math.max(this.areaJuego.yMin, Math.min(civil.y, this.areaJuego.yMax));
             this.app.stage.addChild(civil);
