@@ -33,8 +33,8 @@ class Juego {
         this.areaJuego = {
             xMin: 0,
             xMax: this.width,
-            yMin: 230,
-            yMax: this.height - 210
+            yMin: 400, // cambiar a porcentaje
+            yMax: this.height - 270 // cambiar a porcentaje
         };
 
         // ===============================
@@ -63,7 +63,7 @@ class Juego {
             framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`])
         }
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 100; i++) {
             const civil = new Civil(framesCivil, Math.random() * this.width, Math.random() * this.height, this)
             /* const civil = new PIXI.AnimatedSprite(framesCivil);
             civil.anchor.set(0.5);
