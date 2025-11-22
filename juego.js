@@ -1,4 +1,5 @@
 class Juego {
+    
     app;
     civiles = [];
     jugador;
@@ -21,15 +22,33 @@ class Juego {
 
         document.body.appendChild(this.app.canvas);
 
+        // ───          ⋆⋅☆⋅⋆          ──
+        // ⏔⏔⏔ ꒰ ᧔ CONTAINTERS ᧓ ꒱ ⏔⏔⏔
+        // ───          ⋆⋅☆⋅⋆          ──
+
+        this.layerFondo = new PIXI.Container();
+        this.layerCiviles = new PIXI.Container();
+        this.layerJugador = new PIXI.Container();
+
+        this.app.stage.addChild(this.layerFondo);
+        this.app.stage.addChild(this.layerCiviles);
+        this.app.stage.addChild(this.layerJugador);
+
+        // ───          ⋆⋅☆⋅⋆          ──
+        // ⏔⏔⏔ ꒰ ᧔    FONDO   ᧓ ꒱ ⏔⏔⏔
+        // ───          ⋆⋅☆⋅⋆          ──
+
         const texturaFondo = await PIXI.Assets.load('estacion_de_noche.png');
         const fondo = new PIXI.Sprite(texturaFondo);
         fondo.width = this.width;
         fondo.height = this.height;
-        this.app.stage.addChild(fondo);
 
-        // ==========================
-        // Definir área caminable 
-        // ==========================
+        this.layerFondo.addChild(fondo);
+
+        // ───          ⋆⋅☆⋅⋆          ──
+        // ⏔⏔⏔ ꒰ ᧔AREA CAMINABLE᧓ ꒱ ⏔⏔⏔
+        // ───          ⋆⋅☆⋅⋆          ──
+
         this.areaJuego = {
             xMin: 0,
             xMax: this.width,
@@ -37,51 +56,31 @@ class Juego {
             yMax: this.height - 270 // cambiar a porcentaje
         };
 
-        // ===============================
-        // CIVILES DESDE SPRITESHEET JSON
-        // ===============================
-        // await PIXI.Assets.load('./civiltexture.json');
-
-        /* const framesCivil = [
-            PIXI.Texture.from("caminarIzquierda_Normal (1).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (2).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (3).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (4).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (5).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (6).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (7).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (8).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (9).png"),
-            PIXI.Texture.from("caminarIzquierda_Normal (10).png"),
-        ];*/
+        // ───          ⋆⋅☆⋅⋆          ──
+        // ⏔⏔⏔ ꒰ ᧔   CIVILES   ᧓ ꒱ ⏔⏔⏔
+        // ───          ⋆⋅☆⋅⋆          ──
 
         const sheet = await PIXI.Assets.load('./civiltexture.json');
 
         const framesCivil = [];
-
         for (let i = 1; i <= 10; i++) {
             framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`])
         }
 
-        for (let i = 0; i < 100; i++) {
-            const civil = new Civil(framesCivil, Math.random() * this.width, Math.random() * this.height, this)
-            /* const civil = new PIXI.AnimatedSprite(framesCivil);
-            civil.anchor.set(0.5);
-            civil.animationSpeed = 0.15;
-            civil.play();
-            civil.x = Math.random() * this.width;
-            civil.y = Math.random() * this.height; 
-            civil.scale.set(1.5); 
-            */
-            civil.x = Math.max(this.areaJuego.xMin, Math.min(civil.x, this.areaJuego.xMax));
-            civil.y = Math.max(this.areaJuego.yMin, Math.min(civil.y, this.areaJuego.yMax));
-            this.app.stage.addChild(civil);
+        for (let i = 0; i < 300; i++) {
+            const x = Math.random() * this.width;
+            const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
+            const civil = new Civil(framesCivil, x, y, this);
+            // civil.x = Math.max(this.areaJuego.xMin, Math.min(civil.x, this.areaJuego.xMax));
+            // civil.y = Math.max(this.areaJuego.yMin, Math.min(civil.y, this.areaJuego.yMax));
+
+            this.layerCiviles.addChild(civil);
             this.civiles.push(civil);
         }
 
-        // ===============================
-        // JUGADOR DESDE SPRITESHEET JSON
-        // ===============================
+        // ───          ⋆⋅☆⋅⋆          ──
+        // ⏔⏔⏔ ꒰ ᧔   JUGADOR   ᧓ ꒱ ⏔⏔⏔
+        // ───          ⋆⋅☆⋅⋆          ──
 
         await PIXI.Assets.load("./pungatexture.json");
 
@@ -99,22 +98,23 @@ class Juego {
         this.jugador = new PIXI.AnimatedSprite(frames);
         this.jugador.anchor.set(0.5);
         this.jugador.scale.set(2);
-        this.jugador.x = this.app.view.width / 2;
-        this.jugador.y = this.app.view.height / 2;
+        this.jugador.x = this.app.canvas.width / 2;
+        this.jugador.y = this.app.canvas.height / 2;
         this.jugador.animationSpeed = 0.15;
         this.jugador.play();
 
-        this.app.stage.addChild(this.jugador);
+        this.layerJugador.addChild(this.jugador);
 
         // Mouse tracking
         window.addEventListener("mousemove", (e) => {
-            const rect = this.app.view.getBoundingClientRect();
+            const rect = this.app.canvas.getBoundingClientRect();
             this.mouseX = e.clientX - rect.left;
             this.mouseY = e.clientY - rect.top;
         });
 
         // Loop principal
-        this.app.ticker.add(() => {
+
+        this.app.ticker.add((dt) => {
             const dx = this.mouseX - this.jugador.x;
             const dy = this.mouseY - this.jugador.y;
 
@@ -137,27 +137,12 @@ class Juego {
             // ========================
             // Civiles reaccionan
             // ========================
-            for (const civil of this.civiles) {
-                const dx = this.jugador.x - civil.x;
-                const dy = this.jugador.y - civil.y;
-                const distancia = Math.sqrt(dx * dx + dy * dy);
-                const radioVision = 150;
 
-                if (distancia < radioVision) {
-                    // Movimiento hacia el jugador
-                    civil.x += dx * 0.02;
-                    civil.y += dy * 0.02;
+            for (let civil of this.civiles) {
+            civil.actualizar()
+        }
 
-                    // Reflejar civil según dirección
-                    if (dx > 0) {
-                        civil.scale.x = -1.5; // mirando a la derecha
-                    } else if (dx < 0) {
-                        civil.scale.x = 1.5;  // mirando a la izquierda
-                    }
-                }
-                civil.actualizar();
-            }
-        });
 
-    }
+    })
+}
 }

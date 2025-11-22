@@ -5,33 +5,29 @@ class Civil extends PIXI.AnimatedSprite {
         this.x = x;
         this.y = y;
         this.anchor.set(0.5);
-        this.scale.set(1.5)
+        this.scale.set(1.5);
         this.animationSpeed = 0.15;
         this.play();
-
-        this.boid = new Boid();
+        this.radioVision = 20;
+        this.boidsGlobales = juego.civiles;  // lista de civiles, no boids
+        this.boid = new Boid(this.radioVision, this.x, this.y, this.juego);
 
     }
 
-    actualizar(dt) {
+    actualizar() {
+        this.boidsGlobales = this.juego.civiles;
+        this.boid.rebaño(this.boidsGlobales);
+        this.boid.bordes(this.juego.areaJuego)
         this.boid.actualizar();
-        this.x += this.boid.velocity.x;
-        this.y += this.boid.velocity.y;
 
-        if (this.boid.velocity.x > 0) this.scale.x = -1.5;
+
+        this.x = this.boid.position.x;  //  ⌞ El sprite sigue la posición del boid ⌝
+        this.y = this.boid.position.y;
+
+        if (this.boid.velocity.x > 0) this.scale.x = -1.5;  // dar vuelta sprite (visual) ✿ ⋆⭒˚.⋆
         else this.scale.x = 1.5;
-    
-        this.x = Math.max(this.juego.areaJuego.xMin, Math.min(this.x, this.juego.areaJuego.xMax));
-        this.y = Math.max(this.juego.areaJuego.yMin, Math.min(this.y, this.juego.areaJuego.yMax));
+
     }
 
-/*
-    tick(dt) {
-        // Reflejar sprite según dirección
-        if (this.velocidad.x > 0) this.scale.x = -1;
-        else if (this.velocidad.x < 0) this.scale.x = 1;
-        this.x = Math.max(this.areaJuego.xMin, Math.min(this.x, this.areaJuego.xMax));
-        this.y = Math.max(this.areaJuego.yMin, Math.min(this.y, this.areaJuego.yMax));
-    }
-*/
+
 }
