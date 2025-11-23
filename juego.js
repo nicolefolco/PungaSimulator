@@ -78,22 +78,25 @@ class Juego {
             this.civiles.push(civil);
         }
 
+        // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
+
+        for (let i = 1; i <= 10; i++) {
+            const tex = sheet.textures[`caminarIzquierda_Normal (${i}).png`];
+            tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+            framesCivil.push(tex);
+            }
+
         // ───          ⋆⋅☆⋅⋆          ──
         // ⏔⏔⏔ ꒰ ᧔   JUGADOR   ᧓ ꒱ ⏔⏔⏔
         // ───          ⋆⋅☆⋅⋆          ──
 
-        await PIXI.Assets.load("./pungatexture.json");
+        const pagina = await PIXI.Assets.load('./jugador.json');
+        
+        const frames = [];
 
-        const frames = [
-            PIXI.Texture.from("117.png"),
-            PIXI.Texture.from("118.png"),
-            PIXI.Texture.from("119.png"),
-            PIXI.Texture.from("120.png"),
-            PIXI.Texture.from("121.png"),
-            PIXI.Texture.from("122.png"),
-            PIXI.Texture.from("123.png"),
-            PIXI.Texture.from("124.png"),
-        ];
+        for (let i = 1; i <= 10; i++) {
+            frames.push(pagina.textures[`caminando_izq (${i}).png`])
+        }
 
         this.jugador = new PIXI.AnimatedSprite(frames);
         this.jugador.anchor.set(0.5);
@@ -104,6 +107,14 @@ class Juego {
         this.jugador.play();
 
         this.layerJugador.addChild(this.jugador);
+
+        // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
+
+        for (let i = 1; i <= 10; i++) {
+            const tex = pagina.textures[`caminando_izq (${i}).png`];
+            tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+            frames.push(tex);
+            }
 
         // Mouse tracking
         window.addEventListener("mousemove", (e) => {
