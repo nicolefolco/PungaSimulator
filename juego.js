@@ -1,6 +1,7 @@
 class Juego {
     app;
     civiles = [];
+    civilesQuietos = [];
     jugador;
     mouseX = 0;
     mouseY = 0;
@@ -30,10 +31,12 @@ class Juego {
         // LAYERS
         this.layerFondo = new PIXI.Container();
         this.layerCiviles = new PIXI.Container();
+        this.layerCivilesQuietos = new PIXI.Container();
         this.layerJugador = new PIXI.Container();
 
         this.cameraContainer.addChild(this.layerFondo);
         this.cameraContainer.addChild(this.layerCiviles);
+        this.cameraContainer.addChild(this.layerCivilesQuietos);
         this.cameraContainer.addChild(this.layerJugador);
 
         // ─── FONDO ───
@@ -117,6 +120,34 @@ class Juego {
             tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
             framesCivil.push(tex);
             }
+
+        // ───             ⋆⋅☆⋅⋆          ──
+        // ⏔⏔⏔ ꒰ ᧔   CIVILES QUIETOS  ᧓ ꒱ ⏔⏔⏔
+        // ───             ⋆⋅☆⋅⋆          ──
+            const spriteQuieto = await PIXI.Assets.load('./tipo_1.json');
+            const framesCivilQuieto = [];
+
+        for (let i = 1; i <= 3; i++) {
+            framesCivilQuieto.push(spriteQuieto.textures[`tipo_1_idle (${i}).png`]);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            const x = Math.random() * this.width;
+            const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
+            const civilquieto = new CivilQuieto(framesCivilQuieto, x, y, this);
+            civilquieto.animationSpeed = 0.05;
+
+            this.layerCivilesQuietos.addChild(civilquieto);
+            this.civilesQuietos.push(civilquieto);
+        }
+
+            for (let i = 1; i <= 3; i++) {
+            const texturaQuieto = spriteQuieto.textures[`tipo_1_idle (${i}).png`];
+            texturaQuieto.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+            framesCivilQuieto.push(texturaQuieto);
+            }
+
+            
 
         // ─── JUGADOR ───
         const pagina = await PIXI.Assets.load('./jugador.json');
