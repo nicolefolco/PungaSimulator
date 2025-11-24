@@ -8,6 +8,15 @@ class Juego {
     width;
     height;
     velocidad = 0.007;
+    pungueo= null;
+
+    getCivilQuietoCercano(distMax) {
+    for (let civil of this.civilesQuietos) {
+        const d = Vector.dist(civil.position, this.jugador.position);
+        if (d < distMax) return civil;
+    }
+    return null;
+}
 
     constructor() {
         this.width = 15360; // mundo gigante
@@ -16,6 +25,10 @@ class Juego {
     }
 
     async initPIXI() {
+        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+        // ⛧°. ⋆༺ INICIALIZAR APP ༻⋆. °⛧
+        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+
         this.app = new PIXI.Application();
         await this.app.init({ background: '#6495ED', width: 1920, height: 960 });
         globalThis.__PIXI_APP__ = this.app;
@@ -103,7 +116,9 @@ class Juego {
             yMax: this.height - 300
         };
 
-        // ─── CIVILES ───
+        // ───          ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـﮩﮩ٨ـ        ──
+        // ⏔⏔⏔ ꒰ ᧔   CIVILES   ᧓ ꒱ ⏔⏔⏔
+        // ───          ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـﮩﮩ٨ـ        ──
         const sheet = await PIXI.Assets.load('./civiltexture.json');
         const framesCivil = [];
 
@@ -146,11 +161,12 @@ class Juego {
             const civilquieto = new CivilQuieto(framesCivilQuieto, x, y, this);
             civilquieto.animationSpeed = 0.05;
 
+            // burbuja F ⋆⋆⋆
             const burbuja = new PIXI.Sprite(texturaBurbuja)
             burbuja.anchor.set(0.5);
             burbuja.scale.set(1);
             burbuja.visible = false;
-            console.log("burbuja", burbuja.x, burbuja.y, burbuja.visible);
+
             civilquieto.contenidoBurbuja = burbuja;
 
 
@@ -205,36 +221,65 @@ class Juego {
             this.mouseY = e.clientY - rect.top;
         });
 
+        // Activar situación pungueo
+
+        window.addEventListener("keydown", (e) => {
+            if (e.repeat) return;
+
+            if (e.key === "f" || e.key === "F") {
+                const civilQuietoCercano = this.getCivilQuietoCercano(this.jugador.rangoVisual);
+    
+            if (civilQuietoCercano) {
+                if (!this.pungueo) {
+                    this.pungueo = new Pungueo( (resultado) => {
+                    console.log("Resultado:", resultado);
+                    }, this);
+                }
+
+            this.pungueo.iniciar();
+        }
+    }
+        });
+
+        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
         // 𓂃˖˳·˖ ִֶָ ⋆ LOOP PRINCIPAL ⋆ ִֶָ˖·˳˖𓂃 ִֶָ
+        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
-        this.app.ticker.add(() => {
+        this.app.ticker.add((delta) => {
 
-            // Mouse pantalla → mundo
-            const worldMouseX = this.mouseX - this.cameraContainer.x;
-            const worldMouseY = this.mouseY - this.cameraContainer.y;
+            //     ╰┈➤     MINIJUEGO DE PUNGUEO
 
-            const dx = worldMouseX - this.jugador.x;
-            const dy = worldMouseY - this.jugador.y;
+            const pungueoActivo = this.pungueo && this.pungueo.activo;
 
-            this.jugador.x += dx * this.velocidad;
-            this.jugador.y += dy * this.velocidad;
-            this.jugador.zIndex = this.jugador.y;
+            if (!pungueoActivo) {
+                
+                // Mouse pantalla → mundo
+                const worldMouseX = this.mouseX - this.cameraContainer.x;
+                const worldMouseY = this.mouseY - this.cameraContainer.y;
 
-            // reflejo horizontal
-            if (dx > 0) this.jugador.scale.x = -3;
-            else if (dx < 0) this.jugador.scale.x = 3;
+                const dx = worldMouseX - this.jugador.x;
+                const dy = worldMouseY - this.jugador.y;
 
-            // limitar al área
-            this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
-            this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));
+                this.jugador.x += dx * this.velocidad;
+                this.jugador.y += dy * this.velocidad;
+                this.jugador.zIndex = this.jugador.y;
 
-            // actualizar civiles
-            for (let civil of this.civiles) {
-                civil.actualizar();
-            }
+                // Reflejo horizontal
+                if (dx > 0) this.jugador.scale.x = -3;
+                else if (dx < 0) this.jugador.scale.x = 3;
 
-            for (let civil of this.civilesQuietos) {
-                civil.actualizar();
+                // Limitar el área
+                this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
+                this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));
+
+                // Actualizar civiles
+                for (let civil of this.civiles) civil.actualizar();
+                for (let civil of this.civilesQuietos) civil.actualizar();
+    }
+
+            // Actualizar Pungueo
+            if (this.pungueo) {
+                this.pungueo.actualizar(delta);
             }
 
         for (let civil of this.civilesQuietos) {
@@ -244,7 +289,6 @@ class Juego {
             }
             else { civil.ocultarBurbuja() }
         }
-
 
             // ─────────────────────────────
             // CÁMARA SIGUIENDO AL JUGADOR

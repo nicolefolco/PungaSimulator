@@ -15,9 +15,6 @@ class CivilQuieto extends Civil {
             this.contenidoBurbuja.zIndex = this.zIndex + 1;
     };
 
-    console.log("update burbuja", this.contenidoBurbuja.x, this.contenidoBurbuja.y);
-
-
     }
 
     mostrarBurbuja() {
