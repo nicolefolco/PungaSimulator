@@ -19,6 +19,7 @@ class Civil extends PIXI.AnimatedSprite {
         this.boid.rebaño(this.boidsGlobales);
         this.boid.bordes(this.juego.areaJuego)
         this.boid.actualizar();
+        this.zIndex = this.y;
 
 
         this.x = this.boid.position.x;  //  ⌞ El sprite sigue la posición del boid ⌝

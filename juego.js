@@ -31,13 +31,20 @@ class Juego {
         // LAYERS
         this.layerFondo = new PIXI.Container();
         this.layerCiviles = new PIXI.Container();
+        this.layerCiviles.sortableChildren = true;
         this.layerCivilesQuietos = new PIXI.Container();
+        this.layerCivilesQuietos.sortableChildren = true;
         this.layerJugador = new PIXI.Container();
+        this.layerJugador.sortableChildren = true;
+        this.layerEntidades = new PIXI.Container();
+        this.layerEntidades.sortableChildren = true;
 
         this.cameraContainer.addChild(this.layerFondo);
         this.cameraContainer.addChild(this.layerCiviles);
         this.cameraContainer.addChild(this.layerCivilesQuietos);
         this.cameraContainer.addChild(this.layerJugador);
+        this.cameraContainer.addChild(this.layerEntidades);
+
 
         // ─── FONDO ───
         const texturaFondo = await PIXI.Assets.load('fondoEstacionTren.jpg');
@@ -52,15 +59,15 @@ class Juego {
 
         // HUD – cartel del contador
         const texturaCartelHUD = await PIXI.Assets.load('int_contador.png');
-        const px = 450 / 1920;
-        const py = 550 / 960;
+        const px = 490 / 1920;
+        const py = 580 / 960;
 
         this.cartelHUD = new PIXI.Sprite(texturaCartelHUD);
         console.log(this.cartelHUD.x)
         console.log(this.cartelHUD.y)
         this.cartelHUD.x = this.app.screen.width * px;
         this.cartelHUD.y = this.app.screen.height * py;
-
+        this.cartelHUD.scale.set(0.9)
 
 
         this.uiContainer.addChild(this.cartelHUD);
@@ -110,6 +117,7 @@ class Juego {
             const civil = new Civil(framesCivil, x, y, this);
 
             this.layerCiviles.addChild(civil);
+            this.layerEntidades.addChild(civil);
             this.civiles.push(civil);
         }
 
@@ -126,18 +134,29 @@ class Juego {
         // ───             ⋆⋅☆⋅⋆          ──
             const spriteQuieto = await PIXI.Assets.load('./tipo_1.json');
             const framesCivilQuieto = [];
+            const texturaBurbuja = await PIXI.Assets.load('burbuja_f.png');
 
         for (let i = 1; i <= 3; i++) {
             framesCivilQuieto.push(spriteQuieto.textures[`tipo_1_idle (${i}).png`]);
         }
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 25; i++) {
             const x = Math.random() * this.width;
             const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
             const civilquieto = new CivilQuieto(framesCivilQuieto, x, y, this);
             civilquieto.animationSpeed = 0.05;
 
+            const burbuja = new PIXI.Sprite(texturaBurbuja)
+            burbuja.anchor.set(0.5);
+            burbuja.scale.set(1);
+            burbuja.visible = false;
+            console.log("burbuja", burbuja.x, burbuja.y, burbuja.visible);
+            civilquieto.contenidoBurbuja = burbuja;
+
+
             this.layerCivilesQuietos.addChild(civilquieto);
+            this.layerEntidades.addChild(burbuja);
+            this.layerEntidades.addChild(civilquieto);
             this.civilesQuietos.push(civilquieto);
         }
 
@@ -160,6 +179,7 @@ class Juego {
         this.jugador = new PIXI.AnimatedSprite(frames);
         this.jugador.anchor.set(0.5);
         this.jugador.scale.set(3);
+        this.jugador.rangoVisual = 100
 
         // posición del jugador en el mundo
         this.jugador.x = this.width / 2;
@@ -168,6 +188,7 @@ class Juego {
         this.jugador.animationSpeed = 0.15;
         this.jugador.play();
         this.layerJugador.addChild(this.jugador);
+        this.layerEntidades.addChild(this.jugador);
 
         // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
 
@@ -184,7 +205,8 @@ class Juego {
             this.mouseY = e.clientY - rect.top;
         });
 
-        // LOOP PRINCIPAL
+        // 𓂃˖˳·˖ ִֶָ ⋆ LOOP PRINCIPAL ⋆ ִֶָ˖·˳˖𓂃 ִֶָ
+
         this.app.ticker.add(() => {
 
             // Mouse pantalla → mundo
@@ -196,6 +218,7 @@ class Juego {
 
             this.jugador.x += dx * this.velocidad;
             this.jugador.y += dy * this.velocidad;
+            this.jugador.zIndex = this.jugador.y;
 
             // reflejo horizontal
             if (dx > 0) this.jugador.scale.x = -3;
@@ -209,6 +232,19 @@ class Juego {
             for (let civil of this.civiles) {
                 civil.actualizar();
             }
+
+            for (let civil of this.civilesQuietos) {
+                civil.actualizar();
+            }
+
+        for (let civil of this.civilesQuietos) {
+            const distancia = Vector.dist(civil.position, this.jugador.position)
+            if (distancia < this.jugador.rangoVisual) {
+                civil.mostrarBurbuja()
+            }
+            else { civil.ocultarBurbuja() }
+        }
+
 
             // ─────────────────────────────
             // CÁMARA SIGUIENDO AL JUGADOR
@@ -242,6 +278,14 @@ class Juego {
             const ss = segundos.toString().padStart(2, "0");
 
             this.textoTiempo.text = `${mm}:${ss}`;
+
+            // ORDENAR PROFUNDIDAD DE ENTIDADES ⊹ . ݁˖ . ݁
+
+            this.layerCiviles.sortChildren();
+            this.layerCivilesQuietos.sortChildren();
+            this.layerJugador.sortChildren();
+            this.layerEntidades.sortChildren();
+
         });
     }
 }
