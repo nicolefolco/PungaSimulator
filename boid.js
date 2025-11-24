@@ -17,7 +17,7 @@ class Boid {
 
     bordes() {
         let margen = 1;       // distancia desde el borde para empezar a girar
-        let fuerza = 0.5;      // cuánto los empuja hacia adentro
+        let fuerza = 0.1;      // cuánto los empuja hacia adentro
 
         let steer = createVector(0, 0);
 
@@ -141,9 +141,9 @@ class Boid {
         let cohesion = this.cohesionar(boids);
         let separacion = this.separar(boids);
 
-        separacion.mult(2)
-        alineacion.mult(1.0)
-        cohesion.mult(0.5)
+        separacion.mult(3)
+        alineacion.mult(2)
+        cohesion.mult(1)
 
         this.acceleration.add(borde);
         this.acceleration.add(separacion)

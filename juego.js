@@ -48,19 +48,26 @@ class Juego {
         this.app.stage.addChild(this.uiContainer);
 
         // HUD – cartel del contador
-        const texturaCartelHUD = await PIXI.Assets.load('interfazContador.png');
+        const texturaCartelHUD = await PIXI.Assets.load('int_contador.png');
+        const px = 450 / 1920;
+        const py = 550 / 960;
 
         this.cartelHUD = new PIXI.Sprite(texturaCartelHUD);
         console.log(this.cartelHUD.x)
         console.log(this.cartelHUD.y)
-        this.cartelHUD.x = 459;
-        this.cartelHUD.y = 370;
+        this.cartelHUD.x = this.app.screen.width * px;
+        this.cartelHUD.y = this.app.screen.height * py;
+
+
 
         this.uiContainer.addChild(this.cartelHUD);
 
         // ────────────────────────────────
         // CONTADOR REGRESIVO (2 min)
         // ────────────────────────────────
+        const tx = 820 / 1920;
+        const ty = 810 / 960;
+
         this.tiempoRestante = 120; // segundos
 
         this.textoTiempo = new PIXI.Text({
@@ -72,8 +79,8 @@ class Juego {
             }
         });
 
-        this.textoTiempo.x = 900;
-        this.textoTiempo.y = 874;
+        this.textoTiempo.x = this.app.screen.width * tx;
+        this.textoTiempo.y = this.app.screen.height * ty;
 
         // Agregar a UI (NO a la cámara)
         this.uiContainer.addChild(this.textoTiempo);
@@ -94,7 +101,7 @@ class Juego {
             framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`]);
         }
 
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 300; i++) {
             const x = Math.random() * this.width;
             const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
             const civil = new Civil(framesCivil, x, y, this);
@@ -102,6 +109,14 @@ class Juego {
             this.layerCiviles.addChild(civil);
             this.civiles.push(civil);
         }
+
+        // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
+
+        for (let i = 1; i <= 10; i++) {
+            const tex = sheet.textures[`caminarIzquierda_Normal (${i}).png`];
+            tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+            framesCivil.push(tex);
+            }
 
         // ─── JUGADOR ───
         const pagina = await PIXI.Assets.load('./jugador.json');
@@ -122,6 +137,14 @@ class Juego {
         this.jugador.animationSpeed = 0.15;
         this.jugador.play();
         this.layerJugador.addChild(this.jugador);
+
+        // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
+
+        for (let i = 1; i <= 10; i++) {
+            const tex = pagina.textures[`caminando_izq (${i}).png`];
+            tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+            frames.push(tex);
+            }
 
         // Mouse real
         window.addEventListener("mousemove", (e) => {

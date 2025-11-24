@@ -9,7 +9,7 @@ class Civil extends PIXI.AnimatedSprite {
         this.animationSpeed = 0.15;
         this.play();
         this.radioVision = 20;
-        this.boidsGlobales = juego.civiles;  // lista de civiles, no boids
+        this.boidsGlobales = juego.civiles;  
         this.boid = new Boid(this.radioVision, this.x, this.y, this.juego);
 
     }
