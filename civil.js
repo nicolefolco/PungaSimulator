@@ -5,7 +5,7 @@ class Civil extends PIXI.AnimatedSprite {
         this.x = x;
         this.y = y;
         this.anchor.set(0.5);
-        this.scale.set(1.5);
+        this.scale.set(3);
         this.animationSpeed = 0.15;
         this.play();
         this.radioVision = 20;
@@ -24,8 +24,8 @@ class Civil extends PIXI.AnimatedSprite {
         this.x = this.boid.position.x;  //  ⌞ El sprite sigue la posición del boid ⌝
         this.y = this.boid.position.y;
 
-        if (this.boid.velocity.x > 0) this.scale.x = -1.5;  // dar vuelta sprite (visual) ✿ ⋆⭒˚.⋆
-        else this.scale.x = 1.5;
+        if (this.boid.velocity.x > 0) this.scale.x = -3;  // dar vuelta sprite (visual) ✿ ⋆⭒˚.⋆
+        else this.scale.x = 3;
 
     }
 

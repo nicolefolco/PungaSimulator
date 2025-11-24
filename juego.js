@@ -1,5 +1,4 @@
 class Juego {
-    
     app;
     civiles = [];
     jugador;
@@ -7,153 +6,188 @@ class Juego {
     mouseY = 0;
     width;
     height;
-    velocidad = 0.01;
+    velocidad = 0.007;
 
     constructor() {
-        this.width = 1920;
+        this.width = 15360; // mundo gigante
         this.height = 1080;
         this.initPIXI();
     }
 
     async initPIXI() {
         this.app = new PIXI.Application();
-        await this.app.init({ background: '#6495ED', width: this.width, height: this.height });
+        await this.app.init({ background: '#6495ED', width: 1920, height: 960 });
         globalThis.__PIXI_APP__ = this.app;
 
         document.body.appendChild(this.app.canvas);
 
-        // ───          ⋆⋅☆⋅⋆          ──
-        // ⏔⏔⏔ ꒰ ᧔ CONTAINTERS ᧓ ꒱ ⏔⏔⏔
-        // ───          ⋆⋅☆⋅⋆          ──
+        // ────────────────────────────────
+        // CONTENEDOR PRINCIPAL (cámara)
+        // ────────────────────────────────
+        this.cameraContainer = new PIXI.Container();
+        this.app.stage.addChild(this.cameraContainer);
 
+        // LAYERS
         this.layerFondo = new PIXI.Container();
         this.layerCiviles = new PIXI.Container();
         this.layerJugador = new PIXI.Container();
 
-        this.app.stage.addChild(this.layerFondo);
-        this.app.stage.addChild(this.layerCiviles);
-        this.app.stage.addChild(this.layerJugador);
+        this.cameraContainer.addChild(this.layerFondo);
+        this.cameraContainer.addChild(this.layerCiviles);
+        this.cameraContainer.addChild(this.layerJugador);
 
-        // ───          ⋆⋅☆⋅⋆          ──
-        // ⏔⏔⏔ ꒰ ᧔    FONDO   ᧓ ꒱ ⏔⏔⏔
-        // ───          ⋆⋅☆⋅⋆          ──
-
-        const texturaFondo = await PIXI.Assets.load('estacion_de_noche.png');
+        // ─── FONDO ───
+        const texturaFondo = await PIXI.Assets.load('fondoEstacionTren.jpg');
         const fondo = new PIXI.Sprite(texturaFondo);
         fondo.width = this.width;
         fondo.height = this.height;
-
         this.layerFondo.addChild(fondo);
 
-        // ───          ⋆⋅☆⋅⋆          ──
-        // ⏔⏔⏔ ꒰ ᧔AREA CAMINABLE᧓ ꒱ ⏔⏔⏔
-        // ───          ⋆⋅☆⋅⋆          ──
+        // CONTENEDOR UI (FIJO)
+        this.uiContainer = new PIXI.Container();
+        this.app.stage.addChild(this.uiContainer);
 
+        // HUD – cartel del contador
+        const texturaCartelHUD = await PIXI.Assets.load('interfazContador.png');
+
+        this.cartelHUD = new PIXI.Sprite(texturaCartelHUD);
+        console.log(this.cartelHUD.x)
+        console.log(this.cartelHUD.y)
+        this.cartelHUD.x = 459;
+        this.cartelHUD.y = 370;
+
+        this.uiContainer.addChild(this.cartelHUD);
+
+        // ────────────────────────────────
+        // CONTADOR REGRESIVO (2 min)
+        // ────────────────────────────────
+        this.tiempoRestante = 120; // segundos
+
+        this.textoTiempo = new PIXI.Text({
+            text: "02:00",
+            style: {
+                fill: "white",
+                fontSize: 48,
+                fontFamily: "Arial"
+            }
+        });
+
+        this.textoTiempo.x = 900;
+        this.textoTiempo.y = 874;
+
+        // Agregar a UI (NO a la cámara)
+        this.uiContainer.addChild(this.textoTiempo);
+
+        // ─── ÁREA DE JUEGO ───
         this.areaJuego = {
             xMin: 0,
             xMax: this.width,
-            yMin: 400, // cambiar a porcentaje
-            yMax: this.height - 270 // cambiar a porcentaje
+            yMin: 350,
+            yMax: this.height - 300
         };
 
-        // ───          ⋆⋅☆⋅⋆          ──
-        // ⏔⏔⏔ ꒰ ᧔   CIVILES   ᧓ ꒱ ⏔⏔⏔
-        // ───          ⋆⋅☆⋅⋆          ──
-
+        // ─── CIVILES ───
         const sheet = await PIXI.Assets.load('./civiltexture.json');
-
         const framesCivil = [];
+
         for (let i = 1; i <= 10; i++) {
-            framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`])
+            framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`]);
         }
 
-        for (let i = 0; i < 300; i++) {
+        for (let i = 0; i < 200; i++) {
             const x = Math.random() * this.width;
             const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
             const civil = new Civil(framesCivil, x, y, this);
-            // civil.x = Math.max(this.areaJuego.xMin, Math.min(civil.x, this.areaJuego.xMax));
-            // civil.y = Math.max(this.areaJuego.yMin, Math.min(civil.y, this.areaJuego.yMax));
 
             this.layerCiviles.addChild(civil);
             this.civiles.push(civil);
         }
 
-        // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
-
-        for (let i = 1; i <= 10; i++) {
-            const tex = sheet.textures[`caminarIzquierda_Normal (${i}).png`];
-            tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            framesCivil.push(tex);
-            }
-
-        // ───          ⋆⋅☆⋅⋆          ──
-        // ⏔⏔⏔ ꒰ ᧔   JUGADOR   ᧓ ꒱ ⏔⏔⏔
-        // ───          ⋆⋅☆⋅⋆          ──
-
+        // ─── JUGADOR ───
         const pagina = await PIXI.Assets.load('./jugador.json');
-        
         const frames = [];
 
         for (let i = 1; i <= 10; i++) {
-            frames.push(pagina.textures[`caminando_izq (${i}).png`])
+            frames.push(pagina.textures[`caminando_izq (${i}).png`]);
         }
 
         this.jugador = new PIXI.AnimatedSprite(frames);
         this.jugador.anchor.set(0.5);
-        this.jugador.scale.set(2);
-        this.jugador.x = this.app.canvas.width / 2;
-        this.jugador.y = this.app.canvas.height / 2;
+        this.jugador.scale.set(3);
+
+        // posición del jugador en el mundo
+        this.jugador.x = this.width / 2;
+        this.jugador.y = this.height / 2;
+
         this.jugador.animationSpeed = 0.15;
         this.jugador.play();
-
         this.layerJugador.addChild(this.jugador);
 
-        // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
-
-        for (let i = 1; i <= 10; i++) {
-            const tex = pagina.textures[`caminando_izq (${i}).png`];
-            tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            frames.push(tex);
-            }
-
-        // Mouse tracking
+        // Mouse real
         window.addEventListener("mousemove", (e) => {
             const rect = this.app.canvas.getBoundingClientRect();
             this.mouseX = e.clientX - rect.left;
             this.mouseY = e.clientY - rect.top;
         });
 
-        // Loop principal
+        // LOOP PRINCIPAL
+        this.app.ticker.add(() => {
 
-        this.app.ticker.add((dt) => {
-            const dx = this.mouseX - this.jugador.x;
-            const dy = this.mouseY - this.jugador.y;
+            // Mouse pantalla → mundo
+            const worldMouseX = this.mouseX - this.cameraContainer.x;
+            const worldMouseY = this.mouseY - this.cameraContainer.y;
+
+            const dx = worldMouseX - this.jugador.x;
+            const dy = worldMouseY - this.jugador.y;
 
             this.jugador.x += dx * this.velocidad;
             this.jugador.y += dy * this.velocidad;
 
-            // Reflejar jugador
-            if (dx > 0) {
-                this.jugador.scale.x = -2;
-            } else if (dx < 0) {
-                this.jugador.scale.x = 2;
-            }
+            // reflejo horizontal
+            if (dx > 0) this.jugador.scale.x = -3;
+            else if (dx < 0) this.jugador.scale.x = 3;
 
-            // ========================
-            //  Limitar al área permitida
-            // ========================
+            // limitar al área
             this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
             this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));
 
-            // ========================
-            // Civiles reaccionan
-            // ========================
-
+            // actualizar civiles
             for (let civil of this.civiles) {
-            civil.actualizar()
-        }
+                civil.actualizar();
+            }
 
+            // ─────────────────────────────
+            // CÁMARA SIGUIENDO AL JUGADOR
+            // ─────────────────────────────
 
-    })
-}
+            let camX = -(this.jugador.x - this.app.screen.width / 2);
+            let camY = -(this.jugador.y - this.app.screen.height / 2);
+
+            // límites del mundo
+            camX = Math.min(camX, 0);
+            camX = Math.max(camX, this.app.screen.width - this.width);
+
+            camY = Math.min(camY, 0);
+            camY = Math.max(camY, this.app.screen.height - this.height);
+
+            this.cameraContainer.x = camX;
+            this.cameraContainer.y = camY;
+
+            // ─────────────────────────────
+            // CONTADOR REGRESIVO (CORREGIDO)
+            // ─────────────────────────────
+
+            this.tiempoRestante -= this.app.ticker.deltaMS / 1000;
+
+            if (this.tiempoRestante < 0) this.tiempoRestante = 0;
+
+            const minutos = Math.floor(this.tiempoRestante / 60);
+            const segundos = Math.floor(this.tiempoRestante % 60);
+
+            const mm = minutos.toString().padStart(2, "0");
+            const ss = segundos.toString().padStart(2, "0");
+
+            this.textoTiempo.text = `${mm}:${ss}`;
+        });
+    }
 }
