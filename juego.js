@@ -275,12 +275,12 @@ class Juego {
                 // Actualizar civiles
                 for (let civil of this.civiles) civil.actualizar();
                 for (let civil of this.civilesQuietos) civil.actualizar();
+                
+                // Actualizar Pungueo
+                if (this.pungueo) {
+                    this.pungueo.actualizar(delta);
+                }
     }
-
-            // Actualizar Pungueo
-            if (this.pungueo) {
-                this.pungueo.actualizar(delta);
-            }
 
         for (let civil of this.civilesQuietos) {
             const distancia = Vector.dist(civil.position, this.jugador.position)

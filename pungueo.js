@@ -55,7 +55,7 @@ class Pungueo {
         this.marcador.anchor.set(0.5);
 
         this.marcador.x = this.barra.x;
-        this.marcador.y = this.barra.y - 20;
+        this.marcador.y = this.barra.y - 250;
         this.velocidad = 4;
 
         marcadorTex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
