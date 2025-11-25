@@ -89,6 +89,7 @@ class Juego {
             }
         }
     });
+    
 
         // GAME LOOP!!!!
         this.app.ticker.add(() => this.gameLoop());
@@ -107,9 +108,31 @@ class Juego {
         this.hudContainer = new PIXI.Container();
         this.cameraContainer.addChild(this.hudContainer);
 
+        this.cargarContadorExitos();
+        this.sumarExito();
         this.cargarCartelContador();
         this.cargarContador();
     }
+
+    async cargarContadorExitos() {
+        const cx = 1100 / 1920;
+        const cy = 810 / 960;
+
+        this.contadorExitos = -1;
+        this.textoExitos = new PIXI.Text("0", {
+        fill: "white",
+        fontSize: 48,
+        fontFamily: "Arial"
+    });
+        this.textoExitos.x = this.app.screen.width * cx;
+        this.textoExitos.y = this.app.screen.height * cy;
+        this.hudContainer.addChild(this.textoExitos);
+}
+
+        sumarExito() {
+            this.contadorExitos++;
+            this.textoExitos.text = `${this.contadorExitos}`;
+}
 
     async cargarCartelContador() {
         const texturaCartelContador = await PIXI.Assets.load("assets/int_contador.png");
