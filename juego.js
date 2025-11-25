@@ -155,7 +155,7 @@ class Juego {
     cargarContador() {
 
         const tx = 820 / 1920;
-        const ty = 810 / 960;
+        const ty = 802 / 960;
 
         this.tiempoRestante = 120; // segundos
 
@@ -163,7 +163,7 @@ class Juego {
             text: "02:00",
             style: {
                 fill: "white",
-                fontSize: 48,
+                fontSize: 62,
                 fontFamily: "Pix32"
             }
         });

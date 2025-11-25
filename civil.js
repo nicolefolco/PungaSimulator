@@ -33,11 +33,12 @@ class Civil extends PIXI.AnimatedSprite {
         if (this.juego.hitboxChori) {
             this.chequearColisionHitbox(this.juego.hitboxChori);
         }
-
+        /*
         // CHEQUEAR COLISIÓN CON TODOS LOS FAROLES
         for (let { hitbox } of this.juego.faroles) {
             this.chequearColisionHitbox(hitbox);
         }
+            */
     }
 
     chequearColisionHitbox(hitbox) {
