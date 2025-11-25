@@ -16,7 +16,7 @@ class Boid {
 
 
     bordes() {
-        let margen = 0.9;       // distancia desde el borde para empezar a girar
+        let margen = 50;       // distancia desde el borde para empezar a girar
         let fuerza = 0.1;      // cuánto los empuja hacia adentro
 
         let steer = createVector(0, 0);
