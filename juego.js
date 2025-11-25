@@ -10,6 +10,7 @@ class Juego {
     mouseY = 0;
     civiles = [];
     civilesQuietos = [];
+    objetos = [];
     pungueo= null;
 
     // construcción del juego con la resolución COMPLETA del mapa
@@ -63,6 +64,7 @@ class Juego {
         this.cargarHUD();
         await this.cargarCiviles();
         await this.cargarJugador();
+        await this.cargarObjetos();
 
         window.addEventListener("mousemove", (e) => {
             const rect = this.app.canvas.getBoundingClientRect();
@@ -260,6 +262,23 @@ class Juego {
             frames.push(tex);
             }
     }
+
+    async cargarObjetos() {
+        // faroles
+        const yStart = 0;
+        const yEnd = this.width;
+        const xPos = 880; 
+        const cantidad = 10;
+        const espacio = (yEnd - yStart) / (cantidad - 1);
+
+        for (let i = 0; i < cantidad; i++) {
+            const y = yStart + i * espacio;
+            const farol = new Farol(y, xPos, this);
+            await farol.crearSprite();
+            this.objetos.push(farol);
+            this.layerEntidades.addChild(farol.container);
+            }
+        }
 
     getCivilQuietoCercano(distMax) {
     for (let civil of this.civilesQuietos) {
