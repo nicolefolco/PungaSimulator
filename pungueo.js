@@ -14,7 +14,7 @@ class Pungueo {
         this.barra = null;
         this.zona = null;
         this.marcador = null;
-        this.marcVelocidad = 5;
+        this.marcVelocidad = 12;
 
         this.container.visible = false; 
 
