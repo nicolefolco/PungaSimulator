@@ -10,6 +10,7 @@ class Juego {
     mouseY = 0;
     civiles = [];
     civilesQuietos = [];
+    objetos = [];
     pungueo= null;
 
     // construcción del juego con la resolución COMPLETA del mapa
@@ -63,7 +64,7 @@ class Juego {
         this.cargarHUD();
         await this.cargarCiviles();
         await this.cargarJugador();
-        await this.cargarElementosEstaticos();
+        await this.cargarObjetosEstaticos();
 
         window.addEventListener("mousemove", (e) => {
             const rect = this.app.canvas.getBoundingClientRect();
@@ -88,6 +89,7 @@ class Juego {
             }
         }
     });
+    
 
         // GAME LOOP!!!!
         this.app.ticker.add(() => this.gameLoop());
@@ -102,44 +104,35 @@ class Juego {
         this.containerDelJuego.addChildAt(fondoJuego, 0);
     }
 
-    async cargarElementosEstaticos() {
-        const choripaneriaTextura = await PIXI.Assets.load("assets/choripaneria.png");
-        const choripaneria = new PIXI.Sprite(choripaneriaTextura);
-        
-        choripaneria.anchor.set(0.5);
-        choripaneria.scale.set(1.5);
-
-        choripaneria.x = 4782;
-        choripaneria.y = 540;
-
-        // 🎯 PISO VISUAL (línea imaginaria donde empiezan las partes delanteras)
-        const pisoVisual = choripaneria.y + 40;
-        choripaneria.zIndex = pisoVisual;
-
-        this.layerEntidades.addChild(choripaneria);
-
-        const hitbox = new PIXI.Graphics();
-        hitbox.beginFill(0x000000,0); // negro
-        hitbox.drawRect(0, 0, 1010, 30); // x, y, ancho, alto
-        hitbox.endFill();
-
-        // posición en el mundo
-        hitbox.x = 4288;
-        hitbox.y = 530;
-
-        // agregar al contenedor del juego
-        this.containerDelJuego.addChild(hitbox);
-
-        this.hitboxChori = hitbox;
-    }
-
     cargarHUD() {
         this.hudContainer = new PIXI.Container();
         this.cameraContainer.addChild(this.hudContainer);
 
+        this.cargarContadorExitos();
+        this.sumarExito();
         this.cargarCartelContador();
         this.cargarContador();
     }
+
+    async cargarContadorExitos() {
+        const cx = 1100 / 1920;
+        const cy = 810 / 960;
+
+        this.contadorExitos = -1;
+        this.textoExitos = new PIXI.Text("0", {
+        fill: "white",
+        fontSize: 48,
+        fontFamily: "Arial"
+    });
+        this.textoExitos.x = this.app.screen.width * cx;
+        this.textoExitos.y = this.app.screen.height * cy;
+        this.hudContainer.addChild(this.textoExitos);
+}
+
+        sumarExito() {
+            this.contadorExitos++;
+            this.textoExitos.text = `${this.contadorExitos}`;
+}
 
     async cargarCartelContador() {
         const texturaCartelContador = await PIXI.Assets.load("assets/int_contador.png");
@@ -177,6 +170,90 @@ class Juego {
 
         // agregar a HUD
         this.hudContainer.addChild(this.textoTiempo); 
+    }
+
+// ───────────────
+// CARGAR OBJETOS ESTÁTICOS
+// ───────────────
+    async cargarObjetosEstaticos() {
+        const farolTextura = await PIXI.Assets.load('assets/farol_luz_.png');
+        this.faroles = [];
+
+        // Farol original
+        const farolOriginal = await this.generarFarol(8000, 650, farolTextura);
+        this.faroles.push(farolOriginal);
+
+        // 10 faroles adicionales
+        const minDistancia = 500; // px mínima entre faroles
+        const maxIntentos = 50;   // evitar bucle infinito
+
+        for (let i = 0; i < 10; i++) {
+            let x;
+            let intentos = 0;
+            let valido = false;
+
+            while (!valido && intentos < maxIntentos) {
+                x = this.areaJuego.xMin + Math.random() * (this.areaJuego.xMax - this.areaJuego.xMin);
+                valido = true;
+
+                // revisar distancia con todos los faroles existentes
+                for (let f of this.faroles) {
+                    if (Math.abs(f.sprite.x - x) < minDistancia) {
+                        valido = false;
+                        break;
+                    }
+                }
+
+                intentos++;
+            }
+
+            // si tras maxIntentos no se encuentra, igual lo ponemos (evitar bucle infinito)
+            const farolExtra = await this.generarFarol(x, 650, farolTextura);
+            this.faroles.push(farolExtra);
+        }
+
+        // ─── Choripanería y su hitbox ───
+        const choripaneriaTextura = await PIXI.Assets.load("assets/choripaneria.png");
+        this.choripaneria = new PIXI.Sprite(choripaneriaTextura);
+        this.choripaneria.anchor.set(0.5);
+        this.choripaneria.scale.set(1.5);
+        this.choripaneria.x = 4782;
+        this.choripaneria.y = 540;
+        this.choripaneria.zIndex = this.choripaneria.y + 40;
+        this.layerEntidades.addChild(this.choripaneria);
+
+        const hitbox = new PIXI.Graphics();
+        hitbox.beginFill(0x000000, 0);
+        hitbox.drawRect(0, 0, 1010, 30);
+        hitbox.endFill();
+        hitbox.x = 4288;
+        hitbox.y = 530;
+        this.containerDelJuego.addChild(hitbox);
+        this.hitboxChori = hitbox;
+    }
+
+    // ───────────────
+    // FUNCIÓN GENERAR FAROL
+    // ───────────────
+    async generarFarol(x, y, textura) {
+        const farol = new PIXI.Sprite(textura);
+        farol.anchor.set(0.5);
+        farol.scale.set(0.7);
+        farol.x = x;
+        farol.y = y;
+        farol.zIndex = y + 60;
+
+        this.layerEntidades.addChild(farol);
+
+        const hitbox = new PIXI.Graphics();
+        hitbox.beginFill(0x000000, 0);
+        hitbox.drawRect(0, 0, 42, 5);
+        hitbox.endFill();
+        hitbox.x = x - 28;
+        hitbox.y = y + 60;
+        this.containerDelJuego.addChild(hitbox);
+
+        return { sprite: farol, hitbox };
     }
 
     async cargarCiviles() {
@@ -293,6 +370,8 @@ class Juego {
             }
     }
 
+
+
     getCivilQuietoCercano(distMax) {
         for (let civil of this.civilesQuietos) {
             const d = Vector.dist(civil.position, this.jugador.position);
@@ -382,59 +461,86 @@ class Juego {
         this.layerCiviles.sortChildren();
         this.layerCivilesQuietos.sortChildren();
         this.layerJugador.sortChildren();
-        this.layerEntidades.sortChildren();  
+        this.layerEntidades.sortChildren();
+        //this.layerObjetosEstaticos.sortChildren();
 
-    // ─────────────────────────────
-    // COLISIÓN HITBOX CHORIPANERÍA (AABB correcto)
-    // ─────────────────────────────
-    if (this.hitboxChori) {
+        // ─────────────────────────────
+        // COLISIÓN HITBOX CHORIPANERÍA (AABB correcto)
+        // ─────────────────────────────
+        if (this.hitboxChori) {
+            const hb = this.hitboxChori;
 
-        const hb = this.hitboxChori;
+            const hbLeft = hb.x;
+            const hbRight = hb.x + hb.width;
+            const hbTop = hb.y;
+            const hbBottom = hb.y + hb.height;
 
-        const hbLeft = hb.x;
-        const hbRight = hb.x + hb.width;
-        const hbTop = hb.y;
-        const hbBottom = hb.y + hb.height;
+            // Radio aproximado del jugador (ajustalo si querés)
+            const r = 30;
 
-        // Radio aproximado del jugador (ajustalo si querés)
-        const r = 30;
+            let px = this.jugador.x;
+            let py = this.jugador.y;
 
-        let px = this.jugador.x;
-        let py = this.jugador.y;
+            // ¿El jugador está intentando entrar al rectángulo?
+            const overlapX = px + r > hbLeft && px - r < hbRight;
+            const overlapY = py + r > hbTop && py - r < hbBottom;
 
-        // ¿El jugador está intentando entrar al rectángulo?
-        const overlapX = px + r > hbLeft && px - r < hbRight;
-        const overlapY = py + r > hbTop  && py - r < hbBottom;
+            if (overlapX && overlapY) {
+                // Distancias a cada borde
+                const distTop = Math.abs((py + r) - hbTop);
+                const distBottom = Math.abs((py - r) - hbBottom);
+                const distLeft = Math.abs((px + r) - hbLeft);
+                const distRight = Math.abs((px - r) - hbRight);
 
-        if (overlapX && overlapY) {
+                const minDist = Math.min(distTop, distBottom, distLeft, distRight);
 
-            // Distancias a cada borde
-            const distTop = Math.abs((py + r) - hbTop);
-            const distBottom = Math.abs((py - r) - hbBottom);
-            const distLeft = Math.abs((px + r) - hbLeft);
-            const distRight = Math.abs((px - r) - hbRight);
-
-            const minDist = Math.min(distTop, distBottom, distLeft, distRight);
-
-            // Resolver por el lado más cercano
-            if (minDist === distTop) {
-                // Bloquea desde arriba (jugador encima)
-                this.jugador.y = hbTop - r;
-            }
-            else if (minDist === distBottom) {
-                // Bloquea desde abajo
-                this.jugador.y = hbBottom + r;
-            }
-            else if (minDist === distLeft) {
-                // Bloquea desde izquierda
-                this.jugador.x = hbLeft - r;
-            }
-            else if (minDist === distRight) {
-                // Bloquea desde derecha
-                this.jugador.x = hbRight + r;
+                // Resolver por el lado más cercano
+                if (minDist === distTop) {
+                    // Bloquea desde arriba (jugador encima)
+                    this.jugador.y = hbTop - r;
+                } else if (minDist === distBottom) {
+                    // Bloquea desde abajo
+                    this.jugador.y = hbBottom + r;
+                } else if (minDist === distLeft) {
+                    // Bloquea desde izquierda
+                    this.jugador.x = hbLeft - r;
+                } else if (minDist === distRight) {
+                    // Bloquea desde derecha
+                    this.jugador.x = hbRight + r;
+                }
             }
         }
-    }
+
+        // ───────────────
+        // GAMELOOP (COLISIÓN FAROLES)
+        // ───────────────
+        for (let { hitbox } of this.faroles) {
+            const hbLeft = hitbox.x;
+            const hbRight = hitbox.x + hitbox.width;
+            const hbTop = hitbox.y;
+            const hbBottom = hitbox.y + hitbox.height;
+
+            const r = 30;
+            let px = this.jugador.x;
+            let py = this.jugador.y;
+
+            const overlapX = px + r > hbLeft && px - r < hbRight;
+            const overlapY = py + r > hbTop && py - r < hbBottom;
+
+            if (overlapX && overlapY) {
+                const distTop = Math.abs((py + r) - hbTop);
+                const distBottom = Math.abs((py - r) - hbBottom);
+                const distLeft = Math.abs((px + r) - hbLeft);
+                const distRight = Math.abs((px - r) - hbRight);
+
+                const minDist = Math.min(distTop, distBottom, distLeft, distRight);
+
+                if (minDist === distTop) this.jugador.y = hbTop - r;
+                else if (minDist === distBottom) this.jugador.y = hbBottom + r;
+                else if (minDist === distLeft) this.jugador.x = hbLeft - r;
+                else if (minDist === distRight) this.jugador.x = hbRight + r;
+            }
+        }
 
 
     }

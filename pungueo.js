@@ -125,6 +125,10 @@ class Pungueo {
 
     terminar(resultado) {
         window.removeEventListener("keydown", this.handleKey);
+
+        if (resultado === "Robo exitoso") {
+            this.juego.sumarExito();  
+    }
         this.finalizado(resultado);  // si es Exitoso, se suma al contador de celulares +1 . Si es Espantoso sale del minijuego. 
         this.cerrar()
     }
