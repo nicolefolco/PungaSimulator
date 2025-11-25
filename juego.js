@@ -1,93 +1,131 @@
 class Juego {
+
     app;
-    civiles = [];
-    civilesQuietos = [];
-    jugador;
-    mouseX = 0;
-    mouseY = 0;
     width;
     height;
-    velocidad = 0.007;
+    estadoActual;
+    jugador;
+    velocidad = 0.007
+    mouseX = 0;      
+    mouseY = 0;
+    civiles = [];
+    civilesQuietos = [];
     pungueo= null;
 
-    getCivilQuietoCercano(distMax) {
-    for (let civil of this.civilesQuietos) {
-        const d = Vector.dist(civil.position, this.jugador.position);
-        if (d < distMax) return civil;
-    }
-    return null;
-}
-
+    // construcción del juego con la resolución COMPLETA del mapa
     constructor() {
-        this.width = 15360; // mundo gigante
+        this.width = 15360;
         this.height = 1080;
-        this.initPIXI();
+        this.iniciarPIXI();
     }
 
-    async initPIXI() {
-        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
-        // ⛧°. ⋆༺ INICIALIZAR APP ༻⋆. °⛧
-        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
-
+    // inicializamos pixi con la resolución visisble en pantalla
+    async iniciarPIXI() {
         this.app = new PIXI.Application();
-        await this.app.init({ background: '#6495ED', width: 1920, height: 960 });
         globalThis.__PIXI_APP__ = this.app;
+
+        await this.app.init({
+            background: "#ff32ff",
+            width: 1920,
+            height: 960
+        });
 
         document.body.appendChild(this.app.canvas);
 
-        // ────────────────────────────────
-        // CONTENEDOR PRINCIPAL (cámara)
-        // ────────────────────────────────
+        // CONTAINER PRINCIPAL del juego, todo sucederá en este containter raíz
+        this.containerDelJuego = new PIXI.Container();
+        this.app.stage.addChild(this.containerDelJuego);
+
+        // CONTAINER CÁMARA (ver si poner dentro del container de juego o qué hace)
         this.cameraContainer = new PIXI.Container();
         this.app.stage.addChild(this.cameraContainer);
 
-        // LAYERS
-        this.layerFondo = new PIXI.Container();
-        this.layerCiviles = new PIXI.Container();
-        this.layerCiviles.sortableChildren = true;
-        this.layerCivilesQuietos = new PIXI.Container();
-        this.layerCivilesQuietos.sortableChildren = true;
-        this.layerJugador = new PIXI.Container();
-        this.layerJugador.sortableChildren = true;
-        this.layerEntidades = new PIXI.Container();
-        this.layerEntidades.sortableChildren = true;
+        // inicializamos el menú ya que es la primera pantalla presente en el juego
+        this.cargarMenu();
+    }
 
-        this.cameraContainer.addChild(this.layerFondo);
-        this.cameraContainer.addChild(this.layerCiviles);
-        this.cameraContainer.addChild(this.layerCivilesQuietos);
-        this.cameraContainer.addChild(this.layerJugador);
-        this.cameraContainer.addChild(this.layerEntidades);
+    // función para cargar la instancia del menú
+    cargarMenu() {
+        this.menu = new Menu(this);
+    }
 
+    // función para cargar el juego
+    async cargarJuego() {
 
-        // ─── FONDO ───
-        const texturaFondo = await PIXI.Assets.load('fondoEstacionTren.jpg');
-        const fondo = new PIXI.Sprite(texturaFondo);
-        fondo.width = this.width;
-        fondo.height = this.height;
-        this.layerFondo.addChild(fondo);
+        this.areaJuego = {
+            xMin: 0,
+            xMax: this.width,
+            yMin: 350,
+            yMax: this.height - 300
+        };
 
-        // CONTENEDOR UI (FIJO)
-        this.uiContainer = new PIXI.Container();
-        this.app.stage.addChild(this.uiContainer);
+        await this.cargarFondoJuego();
+        this.cargarHUD();
+        await this.cargarCiviles();
+        await this.cargarJugador();
 
-        // HUD – cartel del contador
-        const texturaCartelHUD = await PIXI.Assets.load('int_contador.png');
+        window.addEventListener("mousemove", (e) => {
+            const rect = this.app.canvas.getBoundingClientRect();
+            this.mouseX = e.clientX - rect.left;
+            this.mouseY = e.clientY - rect.top;
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.repeat) return;
+
+            if (e.key === "f" || e.key === "F") {
+                const civilQuietoCercano = this.getCivilQuietoCercano(this.jugador.rangoVisual);
+    
+            if (civilQuietoCercano) {
+                if (!this.pungueo) {
+                    this.pungueo = new Pungueo( (resultado) => {
+                    console.log("Resultado:", resultado);
+                    }, this);
+                }
+
+            this.pungueo.iniciar();
+            }
+        }
+    });
+
+        // GAME LOOP!!!!
+        this.app.ticker.add(() => this.gameLoop());
+
+    } 
+
+    async cargarFondoJuego() {
+        const fondoJuegoTextura = await PIXI.Assets.load("assets/fondoEstacionTren.jpg");
+        const fondoJuego = new PIXI.Sprite(fondoJuegoTextura);
+        fondoJuego.width = this.width;
+        fondoJuego.height = this.height;
+        this.containerDelJuego.addChildAt(fondoJuego, 0);
+    }
+
+    cargarHUD() {
+        this.hudContainer = new PIXI.Container();
+        this.cameraContainer.addChild(this.hudContainer);
+
+        this.cargarCartelContador();
+        this.cargarContador();
+    }
+
+    async cargarCartelContador() {
+        const texturaCartelContador = await PIXI.Assets.load("assets/int_contador.png");
         const px = 490 / 1920;
         const py = 580 / 960;
 
-        this.cartelHUD = new PIXI.Sprite(texturaCartelHUD);
-        console.log(this.cartelHUD.x)
-        console.log(this.cartelHUD.y)
-        this.cartelHUD.x = this.app.screen.width * px;
-        this.cartelHUD.y = this.app.screen.height * py;
-        this.cartelHUD.scale.set(0.9)
+        this.cartelContador = new PIXI.Sprite(texturaCartelContador);
+        console.log(this.cartelContador.x)
+        console.log(this.cartelContador.y)
+        this.cartelContador.x = this.app.screen.width * px;
+        this.cartelContador.y = this.app.screen.height * py;
+        this.cartelContador.scale.set(0.9)
 
+        this.hudContainer.addChildAt(this.cartelContador,0);
+    }
 
-        this.uiContainer.addChild(this.cartelHUD);
+    cargarContador() {
 
-        // ────────────────────────────────
-        // CONTADOR REGRESIVO (2 min)
-        // ────────────────────────────────
         const tx = 820 / 1920;
         const ty = 810 / 960;
 
@@ -105,76 +143,56 @@ class Juego {
         this.textoTiempo.x = this.app.screen.width * tx;
         this.textoTiempo.y = this.app.screen.height * ty;
 
-        // Agregar a UI (NO a la cámara)
-        this.uiContainer.addChild(this.textoTiempo);
+        // agregar a HUD
+        this.hudContainer.addChild(this.textoTiempo); 
+    }
 
-        // ─── ÁREA DE JUEGO ───
-        this.areaJuego = {
-            xMin: 0,
-            xMax: this.width,
-            yMin: 350,
-            yMax: this.height - 300
-        };
+    async cargarCiviles() {
 
-        // ───          ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـﮩﮩ٨ـ        ──
-        // ⏔⏔⏔ ꒰ ᧔   CIVILES   ᧓ ꒱ ⏔⏔⏔
-        // ───          ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـﮩﮩ٨ـ        ──
-        const sheet = await PIXI.Assets.load('./civiltexture.json');
-        const sheet_2 = await PIXI.Assets.load('./tipo_2.json');
-        const framesCivil_tipo_0 = [];
-        const framesCivil_tipo_2 = [];
+        this.layerCiviles = new PIXI.Container();
+        this.layerCiviles.sortableChildren = true;
+        this.containerDelJuego.addChild(this.layerCiviles)
+
+        this.layerEntidades = new PIXI.Container();
+        this.layerEntidades.sortableChildren = true;
+        this.containerDelJuego.addChild(this.layerEntidades)
+
+        const sheet = await PIXI.Assets.load('assets/civiltexture.json');
+        const framesCivil = [];
 
         for (let i = 1; i <= 10; i++) {
-            framesCivil_tipo_0.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`]);
+            framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`]);
         }
 
-        for (let i = 0; i < 250; i++) {
+        for (let i = 0; i < 300; i++) {
             const x = Math.random() * this.width;
             const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
-            const civil = new Civil(framesCivil_tipo_0, x, y, this);
+            const civil = new Civil(framesCivil, x, y, this);
 
             this.layerCiviles.addChild(civil);
             this.layerEntidades.addChild(civil);
             this.civiles.push(civil);
         }
-
-        for (let i = 1; i <= 8; i++) {
-            framesCivil_tipo_2.push(sheet_2.textures[`tipo_2_caminando_izq (${i}).png`]);
-
-        }
-
-        for (let i = 0; i < 250; i++) {
-            const x = Math.random() * this.width;
-            const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
-            const civil = new Civil(framesCivil_tipo_2, x, y, this);
-
-            this.layerCiviles.addChild(civil);
-            this.layerEntidades.addChild(civil);
-            this.civiles.push(civil);
-        }
-
 
         // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
 
         for (let i = 1; i <= 10; i++) {
             const tex = sheet.textures[`caminarIzquierda_Normal (${i}).png`];
             tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            framesCivil_tipo_0.push(tex);
-            }
-
-        for (let i = 1; i <= 10; i++) {
-            const tex2 = sheet_2.textures[`tipo_2_caminando_izq (${i}).png`];
-            tex2.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            framesCivil_tipo_2.push(tex2);
-            }
-
+            framesCivil.push(tex);
+        }
 
         // ───             ⋆⋅☆⋅⋆          ──
         // ⏔⏔⏔ ꒰ ᧔   CIVILES QUIETOS  ᧓ ꒱ ⏔⏔⏔
         // ───             ⋆⋅☆⋅⋆          ──
-            const spriteQuieto = await PIXI.Assets.load('./tipo_1.json');
-            const framesCivilQuieto = [];
-            const texturaBurbuja = await PIXI.Assets.load('burbuja_f.png');
+
+        this.layerCivilesQuietos = new PIXI.Container();
+        this.layerCivilesQuietos.sortableChildren = true;
+        this.containerDelJuego.addChild(this.layerCivilesQuietos)
+        
+        const spriteQuieto = await PIXI.Assets.load('assets/tipo_1.json');
+        const framesCivilQuieto = [];
+        const texturaBurbuja = await PIXI.Assets.load('assets/burbuja_f.png');
 
         for (let i = 1; i <= 3; i++) {
             framesCivilQuieto.push(spriteQuieto.textures[`tipo_1_idle (${i}).png`]);
@@ -186,12 +204,11 @@ class Juego {
             const civilquieto = new CivilQuieto(framesCivilQuieto, x, y, this);
             civilquieto.animationSpeed = 0.05;
 
-            // burbuja F ⋆⋆⋆
             const burbuja = new PIXI.Sprite(texturaBurbuja)
             burbuja.anchor.set(0.5);
             burbuja.scale.set(1);
             burbuja.visible = false;
-
+            //console.log("burbuja", burbuja.x, burbuja.y, burbuja.visible);
             civilquieto.contenidoBurbuja = burbuja;
 
 
@@ -206,11 +223,15 @@ class Juego {
             texturaQuieto.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
             framesCivilQuieto.push(texturaQuieto);
             }
+    }
 
-            
+    async cargarJugador() {
 
-        // ─── JUGADOR ───
-        const pagina = await PIXI.Assets.load('./jugador.json');
+        this.layerJugador = new PIXI.Container();
+        this.layerJugador.sortableChildren = true;
+        this.containerDelJuego.addChild(this.layerJugador);
+
+        const pagina = await PIXI.Assets.load('assets/jugador.json');
         const frames = [];
 
         for (let i = 1; i <= 10; i++) {
@@ -238,124 +259,100 @@ class Juego {
             tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
             frames.push(tex);
             }
-
-        // Mouse real
-        window.addEventListener("mousemove", (e) => {
-            const rect = this.app.canvas.getBoundingClientRect();
-            this.mouseX = e.clientX - rect.left;
-            this.mouseY = e.clientY - rect.top;
-        });
-
-        // Activar situación pungueo
-
-        window.addEventListener("keydown", (e) => {
-            if (e.repeat) return;
-
-            if (e.key === "f" || e.key === "F") {
-                const civilQuietoCercano = this.getCivilQuietoCercano(this.jugador.rangoVisual);
-    
-            if (civilQuietoCercano) {
-                if (!this.pungueo) {
-                    this.pungueo = new Pungueo( (resultado) => {
-                    console.log("Resultado:", resultado);
-                    }, this);
-                }
-
-            this.pungueo.iniciar();
-        }
     }
-        });
 
-        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
-        // 𓂃˖˳·˖ ִֶָ ⋆ LOOP PRINCIPAL ⋆ ִֶָ˖·˳˖𓂃 ִֶָ
-        //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+    getCivilQuietoCercano(distMax) {
+    for (let civil of this.civilesQuietos) {
+        const d = Vector.dist(civil.position, this.jugador.position);
+        if (d < distMax) return civil;
+    }
+    return null;
+}
 
-        this.app.ticker.add(() => {
+    gameLoop() {
+        
+    const dt = this.app.ticker.deltaMS / 16.67;
 
-            //     ╰┈➤     MINIJUEGO DE PUNGUEO
+    // ╰┈➤ MINIJUEGO DE PUNGUEO
+    const pungueoActivo = this.pungueo && this.pungueo.activo;
 
-            const pungueoActivo = this.pungueo && this.pungueo.activo;
+    if (!pungueoActivo) {
 
-            if (!pungueoActivo) {
-                
-                // Mouse pantalla → mundo
-                const worldMouseX = this.mouseX - this.cameraContainer.x;
-                const worldMouseY = this.mouseY - this.cameraContainer.y;
+        // Mouse pantalla → mundo
+        const worldMouseX = this.mouseX - this.containerDelJuego.x;
+        const worldMouseY = this.mouseY - this.containerDelJuego.y;
 
-                const dx = worldMouseX - this.jugador.x;
-                const dy = worldMouseY - this.jugador.y;
+        const dx = worldMouseX - this.jugador.x;
+        const dy = worldMouseY - this.jugador.y;
 
-                this.jugador.x += dx * this.velocidad;
-                this.jugador.y += dy * this.velocidad;
-                this.jugador.zIndex = this.jugador.y;
+        // Movimiento con delta
+        this.jugador.x += dx * this.velocidad * dt;
+        this.jugador.y += dy * this.velocidad * dt;
+        this.jugador.zIndex = this.jugador.y;
 
-                // Reflejo horizontal
-                if (dx > 0) this.jugador.scale.x = -3;
-                else if (dx < 0) this.jugador.scale.x = 3;
+        // Reflejo horizontal
+        if (dx > 0) this.jugador.scale.x = -3;
+        else if (dx < 0) this.jugador.scale.x = 3;
 
-                // Limitar el área
-                this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
-                this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));
+        // Limitar área
+        this.jugador.x = Math.max(this.areaJuego.xMin, Math.min(this.jugador.x, this.areaJuego.xMax));
+        this.jugador.y = Math.max(this.areaJuego.yMin, Math.min(this.jugador.y, this.areaJuego.yMax));
 
-                // Actualizar civiles
-                for (let civil of this.civiles) civil.actualizar();
-                for (let civil of this.civilesQuietos) civil.actualizar();
+        // Actualizar civiles
+        for (let civil of this.civiles) civil.actualizar();
+        for (let civil of this.civilesQuietos) civil.actualizar();
 
     }
 
-                // Actualizar Pungueo
-                if (this.pungueo) {
-                    this.pungueo.actualizar();
-                }
+    // Actualizar minijuego de pungueo
+    if (this.pungueo) this.pungueo.actualizar();
 
-        for (let civil of this.civilesQuietos) {
-            const distancia = Vector.dist(civil.position, this.jugador.position)
-            if (distancia < this.jugador.rangoVisual) {
-                civil.mostrarBurbuja()
-            }
-            else { civil.ocultarBurbuja() }
-        }
-
-            // ─────────────────────────────
-            // CÁMARA SIGUIENDO AL JUGADOR
-            // ─────────────────────────────
-
-            let camX = -(this.jugador.x - this.app.screen.width / 2);
-            let camY = -(this.jugador.y - this.app.screen.height / 2);
-
-            // límites del mundo
-            camX = Math.min(camX, 0);
-            camX = Math.max(camX, this.app.screen.width - this.width);
-
-            camY = Math.min(camY, 0);
-            camY = Math.max(camY, this.app.screen.height - this.height);
-
-            this.cameraContainer.x = camX;
-            this.cameraContainer.y = camY;
-
-            // ─────────────────────────────
-            // CONTADOR REGRESIVO (CORREGIDO)
-            // ─────────────────────────────
-
-            this.tiempoRestante -= this.app.ticker.deltaMS / 1000;
-
-            if (this.tiempoRestante < 0) this.tiempoRestante = 0;
-
-            const minutos = Math.floor(this.tiempoRestante / 60);
-            const segundos = Math.floor(this.tiempoRestante % 60);
-
-            const mm = minutos.toString().padStart(2, "0");
-            const ss = segundos.toString().padStart(2, "0");
-
-            this.textoTiempo.text = `${mm}:${ss}`;
-
-            // ORDENAR PROFUNDIDAD DE ENTIDADES ⊹ . ݁˖ . ݁
-
-            this.layerCiviles.sortChildren();
-            this.layerCivilesQuietos.sortChildren();
-            this.layerJugador.sortChildren();
-            this.layerEntidades.sortChildren();
-
-        });
+    // Mostrar/ocultar burbujas
+    for (let civil of this.civilesQuietos) {
+        const distancia = Vector.dist(civil.position, this.jugador.position);
+        if (distancia < this.jugador.rangoVisual) civil.mostrarBurbuja();
+        else civil.ocultarBurbuja();
     }
+
+        // ─────────────────────────────
+        // CÁMARA SIGUIENDO AL JUGADOR
+        // ─────────────────────────────
+
+        let camX = -(this.jugador.x - this.app.screen.width / 2);
+        let camY = -(this.jugador.y - this.app.screen.height / 2);
+
+        // límites del mundo
+        camX = Math.min(camX, 0);
+        camX = Math.max(camX, this.app.screen.width - this.width);
+
+        camY = Math.min(camY, 0);
+        camY = Math.max(camY, this.app.screen.height - this.height);
+
+        this.containerDelJuego.x = camX;
+        this.containerDelJuego.y = camY;
+
+        // ─────────────────────────────
+        // CONTADOR REGRESIVO (CORREGIDO)
+        // ─────────────────────────────
+
+        this.tiempoRestante -= this.app.ticker.deltaMS / 1000;
+
+        if (this.tiempoRestante < 0) this.tiempoRestante = 0;
+
+        const minutos = Math.floor(this.tiempoRestante / 60);
+        const segundos = Math.floor(this.tiempoRestante % 60);
+
+        const mm = minutos.toString().padStart(2, "0");
+        const ss = segundos.toString().padStart(2, "0");
+
+        this.textoTiempo.text = `${mm}:${ss}`;
+
+        // ORDENAR PROFUNDIDAD DE ENTIDADES ⊹ . ݁˖ . ݁
+
+        this.layerCiviles.sortChildren();
+        this.layerCivilesQuietos.sortChildren();
+        this.layerJugador.sortChildren();
+        this.layerEntidades.sortChildren();  
+    }
+
 }

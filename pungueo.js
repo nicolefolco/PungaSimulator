@@ -21,7 +21,7 @@ class Pungueo {
         this.container.x = 950;
         this.container.y = 700;
 
-        this.juego.uiContainer.addChild(this.container); 
+        this.juego.hudContainer.addChild(this.container); 
 
         this.inicializada = false;
         this.inicializarUI().then(() => {     // el constructor lanza la carga y .then() marca cuando terminó, sin bloquear la creación del objeto. Solucionó el movimiento del marcador
@@ -30,7 +30,7 @@ class Pungueo {
     }
 
     async inicializarUI() {
-        const barraTex = await PIXI.Assets.load('barra.png');
+        const barraTex = await PIXI.Assets.load('assets/barra.png');
         
         this.barra = new PIXI.Sprite(barraTex);
 
@@ -42,7 +42,7 @@ class Pungueo {
         this.container.addChild(this.barra);
 
         // Zona verde ๋࣭ ⭑
-        const zonaTex = await PIXI.Assets.load('zona_verde.png');
+        const zonaTex = await PIXI.Assets.load('assets/zona_verde.png');
 
         this.zona = new PIXI.Sprite(zonaTex);
 
@@ -53,7 +53,7 @@ class Pungueo {
         this.container.addChild(this.zona);
 
         // Marcador ๋࣭ ⭑
-        const marcadorTex = await PIXI.Assets.load('marcador.png');
+        const marcadorTex = await PIXI.Assets.load('assets/marcador.png');
 
         this.marcador = new PIXI.Sprite(marcadorTex);
         this.marcador.scale.set(1.5, 2.5);
