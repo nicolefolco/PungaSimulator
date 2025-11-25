@@ -22,6 +22,7 @@ class Juego {
 
     // inicializamos pixi con la resolución visisble en pantalla
     async iniciarPIXI() {
+        await PIXI.Assets.load('assets/Pix32.ttf');
         this.app = new PIXI.Application();
         globalThis.__PIXI_APP__ = this.app;
 
@@ -94,7 +95,7 @@ class Juego {
         // GAME LOOP!!!!
         this.app.ticker.add(() => this.gameLoop());
 
-    } 
+    }
 
     async cargarFondoJuego() {
         const fondoJuegoTextura = await PIXI.Assets.load("assets/fondoEstacionTren.jpg");
@@ -109,7 +110,6 @@ class Juego {
         this.cameraContainer.addChild(this.hudContainer);
 
         this.cargarContadorExitos();
-        this.sumarExito();
         this.cargarCartelContador();
         this.cargarContador();
     }
@@ -118,12 +118,15 @@ class Juego {
         const cx = 1100 / 1920;
         const cy = 810 / 960;
 
-        this.contadorExitos = -1;
-        this.textoExitos = new PIXI.Text("0", {
-        fill: "white",
-        fontSize: 48,
-        fontFamily: "Arial"
-    });
+        this.contadorExitos = 0;
+        this.textoExitos = new PIXI.Text({
+            text: "0",
+            style: {
+                fill: "white",
+                fontSize: 48,
+                fontFamily: "Pix32"
+            }
+        });
         this.textoExitos.x = this.app.screen.width * cx;
         this.textoExitos.y = this.app.screen.height * cy;
         this.hudContainer.addChild(this.textoExitos);
@@ -161,7 +164,7 @@ class Juego {
             style: {
                 fill: "white",
                 fontSize: 48,
-                fontFamily: "Arial"
+                fontFamily: "Pix32"
             }
         });
 
