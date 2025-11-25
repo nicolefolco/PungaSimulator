@@ -14,7 +14,7 @@ class Pungueo {
         this.barra = null;
         this.zona = null;
         this.marcador = null;
-        this.marcVelocidad = 10;
+        this.marcVelocidad = 5;
 
         this.container.visible = false; 
 
@@ -42,15 +42,17 @@ class Pungueo {
         this.container.addChild(this.barra);
 
         // Zona verde ๋࣭ ⭑
-        const zonaTex = await PIXI.Assets.load('assets/zona_verde.png');
+        const zonaTex = await PIXI.Assets.load('assets/zona_verde_2.png');
 
         this.zona = new PIXI.Sprite(zonaTex);
 
         this.zona.x = this.barra.x;
-        this.zona.y = this.barra.y;  
+        this.zona.y = this.barra.y - 200;  
         this.zona.anchor.set(0.5, 1);
 
         this.container.addChild(this.zona);
+
+        
 
         // Marcador ๋࣭ ⭑
         const marcadorTex = await PIXI.Assets.load('assets/marcador.png');
@@ -72,11 +74,18 @@ class Pungueo {
         if (e.key !== " ") return;  // si no se tocó la tecla espacio, no hace nada
 
         this.intentos++;  // cada vez que se toca el espacio, cuenta como intento
+        
+         const zonaBounds = this.zona.getBounds();       // PIXI.Rectangle con x, y, width, height
+        const marcadorPos = this.marcador.getGlobalPosition();
 
-        const left  = this.zona.x - (this.zona.width  * this.zona.anchor.x);
-        const right = this.zona.x + (this.zona.width  * (1 - this.zona.anchor.x));
+        const dentro = (
+            marcadorPos.x >= zonaBounds.x &&
+            marcadorPos.x <= zonaBounds.x + zonaBounds.width &&
+            marcadorPos.y >= zonaBounds.y &&
+            marcadorPos.y <= zonaBounds.y + zonaBounds.height
+        );
+        
 
-        const dentro = this.marcador.x >= left && this.marcador.x <= right;
 
         if (dentro) this.aciertos++;
         else this.fallos++;
