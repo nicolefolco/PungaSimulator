@@ -1,0 +1,303 @@
+{
+  "frames": {
+    "tipo_2_caminando_izq (11).png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (10).png": {
+      "frame": {
+        "x": 0,
+        "y": 64,
+        "w": 26,
+        "h": 51
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 13,
+        "w": 26,
+        "h": 51
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (3).png": {
+      "frame": {
+        "x": 0,
+        "y": 115,
+        "w": 27,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 14,
+        "w": 27,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (4).png": {
+      "frame": {
+        "x": 26,
+        "y": 64,
+        "w": 27,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 14,
+        "w": 27,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (12).png": {
+      "frame": {
+        "x": 0,
+        "y": 165,
+        "w": 26,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 14,
+        "w": 26,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (7).png": {
+      "frame": {
+        "x": 0,
+        "y": 215,
+        "w": 26,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 14,
+        "w": 26,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (8).png": {
+      "frame": {
+        "x": 0,
+        "y": 265,
+        "w": 26,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 14,
+        "w": 26,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (1).png": {
+      "frame": {
+        "x": 0,
+        "y": 315,
+        "w": 28,
+        "h": 49
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 18,
+        "y": 15,
+        "w": 28,
+        "h": 49
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (2).png": {
+      "frame": {
+        "x": 26,
+        "y": 165,
+        "w": 28,
+        "h": 49
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 18,
+        "y": 15,
+        "w": 28,
+        "h": 49
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (5).png": {
+      "frame": {
+        "x": 27,
+        "y": 114,
+        "w": 28,
+        "h": 49
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 15,
+        "w": 28,
+        "h": 49
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (6).png": {
+      "frame": {
+        "x": 54,
+        "y": 64,
+        "w": 27,
+        "h": 49
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 15,
+        "w": 27,
+        "h": 49
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "tipo_2_caminando_izq (9).png": {
+      "frame": {
+        "x": 0,
+        "y": 165,
+        "w": 26,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 14,
+        "w": 26,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "tipo_2.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 81,
+      "h": 364
+    },
+    "scale": 1
+  }
+}

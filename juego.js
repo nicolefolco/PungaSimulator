@@ -120,29 +120,54 @@ class Juego {
         // ⏔⏔⏔ ꒰ ᧔   CIVILES   ᧓ ꒱ ⏔⏔⏔
         // ───          ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـﮩﮩ٨ـ        ──
         const sheet = await PIXI.Assets.load('./civiltexture.json');
-        const framesCivil = [];
+        const sheet_2 = await PIXI.Assets.load('./tipo_2.json');
+        const framesCivil_tipo_0 = [];
+        const framesCivil_tipo_2 = [];
 
         for (let i = 1; i <= 10; i++) {
-            framesCivil.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`]);
+            framesCivil_tipo_0.push(sheet.textures[`caminarIzquierda_Normal (${i}).png`]);
         }
 
-        for (let i = 0; i < 300; i++) {
+        for (let i = 0; i < 250; i++) {
             const x = Math.random() * this.width;
             const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
-            const civil = new Civil(framesCivil, x, y, this);
+            const civil = new Civil(framesCivil_tipo_0, x, y, this);
 
             this.layerCiviles.addChild(civil);
             this.layerEntidades.addChild(civil);
             this.civiles.push(civil);
         }
 
+        for (let i = 1; i <= 8; i++) {
+            framesCivil_tipo_2.push(sheet_2.textures[`tipo_2_caminando_izq (${i}).png`]);
+
+        }
+
+        for (let i = 0; i < 250; i++) {
+            const x = Math.random() * this.width;
+            const y = random(this.areaJuego.yMin, this.areaJuego.yMax);
+            const civil = new Civil(framesCivil_tipo_2, x, y, this);
+
+            this.layerCiviles.addChild(civil);
+            this.layerEntidades.addChild(civil);
+            this.civiles.push(civil);
+        }
+
+
         // . ݁₊ ⊹ . ݁ cambiar calidad con escala  ݁ . ⊹ ₊ ݁.
 
         for (let i = 1; i <= 10; i++) {
             const tex = sheet.textures[`caminarIzquierda_Normal (${i}).png`];
             tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            framesCivil.push(tex);
+            framesCivil_tipo_0.push(tex);
             }
+
+        for (let i = 1; i <= 10; i++) {
+            const tex2 = sheet_2.textures[`tipo_2_caminando_izq (${i}).png`];
+            tex2.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+            framesCivil_tipo_2.push(tex2);
+            }
+
 
         // ───             ⋆⋅☆⋅⋆          ──
         // ⏔⏔⏔ ꒰ ᧔   CIVILES QUIETOS  ᧓ ꒱ ⏔⏔⏔
@@ -245,7 +270,7 @@ class Juego {
         // 𓂃˖˳·˖ ִֶָ ⋆ LOOP PRINCIPAL ⋆ ִֶָ˖·˳˖𓂃 ִֶָ
         //⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
-        this.app.ticker.add((delta) => {
+        this.app.ticker.add(() => {
 
             //     ╰┈➤     MINIJUEGO DE PUNGUEO
 
@@ -275,12 +300,13 @@ class Juego {
                 // Actualizar civiles
                 for (let civil of this.civiles) civil.actualizar();
                 for (let civil of this.civilesQuietos) civil.actualizar();
-                
+
+    }
+
                 // Actualizar Pungueo
                 if (this.pungueo) {
-                    this.pungueo.actualizar(delta);
+                    this.pungueo.actualizar();
                 }
-    }
 
         for (let civil of this.civilesQuietos) {
             const distancia = Vector.dist(civil.position, this.jugador.position)

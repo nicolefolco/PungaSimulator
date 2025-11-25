@@ -14,20 +14,25 @@ class Pungueo {
         this.barra = null;
         this.zona = null;
         this.marcador = null;
-        this.velocidad = 5;
+        this.marcVelocidad = 10;
 
         this.container.visible = false; 
 
+        this.container.x = 950;
+        this.container.y = 700;
+
         this.juego.uiContainer.addChild(this.container); 
 
-
+        this.inicializada = false;
+        this.inicializarUI().then(() => {     // el constructor lanza la carga y .then() marca cuando terminó, sin bloquear la creación del objeto. Solucionó el movimiento del marcador
+        this.inicializada = true;
+        });
     }
 
     async inicializarUI() {
         const barraTex = await PIXI.Assets.load('barra.png');
         
         this.barra = new PIXI.Sprite(barraTex);
-        this.barra.anchor.set(0.5, 1);
 
         this.barra.x = 0;
         this.barra.y = 0;
@@ -54,16 +59,12 @@ class Pungueo {
         this.marcador.scale.set(1.5, 2.5);
         this.marcador.anchor.set(0.5);
 
+
         this.marcador.x = this.barra.x;
         this.marcador.y = this.barra.y - 250;
-        this.velocidad = 4;
 
         marcadorTex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
         this.container.addChild(this.marcador);
-
-        this.container.x = 950;
-        this.container.y = 700;
-
 
     }
 
@@ -72,43 +73,42 @@ class Pungueo {
 
         this.intentos++;  // cada vez que se toca el espacio, cuenta como intento
 
-        const dentro = this.marcador.x >= this.zona.x &&
-        this.marcador.x <= this.zona.x + this.zona.width;
+        const left  = this.zona.x - (this.zona.width  * this.zona.anchor.x);
+        const right = this.zona.x + (this.zona.width  * (1 - this.zona.anchor.x));
+
+        const dentro = this.marcador.x >= left && this.marcador.x <= right;
 
         if (dentro) this.aciertos++;
         else this.fallos++;
 
-        if (this.intentos >= 2) {
-            this.terminar(this.aciertos >= 1 ? "Robo exitoso" : "Espantoso");
+        if (this.intentos == 3) {
+            this.terminar(this.aciertos >= 2 ? "Robo exitoso" : "Espantoso");
 }
         
     }
 
-    actualizar(delta) {
+    actualizar() {
         if (!this.activo) return;
-        if (!this.barra || !this.zona || !this.marcador) return; 
-        this.moverMarcador(delta);
+        if (!this.inicializada) return;
+        if (!this.barra || !this.zona || !this.marcador) return;
+        this.moverMarcador();
     }
 
-    moverMarcador(delta) {
+    moverMarcador() {
         const izquierda = this.barra.x - this.barra.width / 2;
         const derecha = this.barra.x + this.barra.width / 2;
 
-        this.marcador.x += this.velocidad * delta;
+        this.marcador.x += this.marcVelocidad;
 
         if (this.marcador.x < izquierda || this.marcador.x > derecha) {
-            this.velocidad *= -1;
-        }
+            this.marcVelocidad *= -1;
+    }
+
     }
 
     async iniciar() {
         this.activo = false;
         this.container.visible = true;
-
-        if (!this.uiIniciado) {
-            await this.inicializarUI();   
-            this.uiIniciado = true;
-    }
 
         this.intentos = 0;
         this.aciertos = 0;
