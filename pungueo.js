@@ -42,12 +42,12 @@ class Pungueo {
         this.container.addChild(this.barra);
 
         // Zona verde ๋࣭ ⭑
-        const zonaTex = await PIXI.Assets.load('assets/zona_verde_2.png');
+        const zonaTex = await PIXI.Assets.load('assets/zona_verde_1.png');
 
         this.zona = new PIXI.Sprite(zonaTex);
 
-        this.zona.x = this.barra.x;
-        this.zona.y = this.barra.y - 200;  
+        this.zona.x = this.barra.x - 150;
+        this.zona.y = this.barra.y - 192;  
         this.zona.anchor.set(0.5, 1);
 
         this.container.addChild(this.zona);
