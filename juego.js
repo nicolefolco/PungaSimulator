@@ -63,6 +63,7 @@ class Juego {
         this.cargarHUD();
         await this.cargarCiviles();
         await this.cargarJugador();
+        await this.cargarElementosEstaticos();
 
         window.addEventListener("mousemove", (e) => {
             const rect = this.app.canvas.getBoundingClientRect();
@@ -99,6 +100,37 @@ class Juego {
         fondoJuego.width = this.width;
         fondoJuego.height = this.height;
         this.containerDelJuego.addChildAt(fondoJuego, 0);
+    }
+
+    async cargarElementosEstaticos() {
+        const choripaneriaTextura = await PIXI.Assets.load("assets/choripaneria.png");
+        const choripaneria = new PIXI.Sprite(choripaneriaTextura);
+        
+        choripaneria.anchor.set(0.5);
+        choripaneria.scale.set(1.5);
+
+        choripaneria.x = 4782;
+        choripaneria.y = 540;
+
+        // 🎯 PISO VISUAL (línea imaginaria donde empiezan las partes delanteras)
+        const pisoVisual = choripaneria.y + 40;
+        choripaneria.zIndex = pisoVisual;
+
+        this.layerEntidades.addChild(choripaneria);
+
+        const hitbox = new PIXI.Graphics();
+        hitbox.beginFill(0x000000,0); // negro
+        hitbox.drawRect(0, 0, 1010, 30); // x, y, ancho, alto
+        hitbox.endFill();
+
+        // posición en el mundo
+        hitbox.x = 4288;
+        hitbox.y = 530;
+
+        // agregar al contenedor del juego
+        this.containerDelJuego.addChild(hitbox);
+
+        this.hitboxChori = hitbox;
     }
 
     cargarHUD() {
@@ -262,12 +294,12 @@ class Juego {
     }
 
     getCivilQuietoCercano(distMax) {
-    for (let civil of this.civilesQuietos) {
-        const d = Vector.dist(civil.position, this.jugador.position);
-        if (d < distMax) return civil;
+        for (let civil of this.civilesQuietos) {
+            const d = Vector.dist(civil.position, this.jugador.position);
+            if (d < distMax) return civil;
+        }
+        return null;
     }
-    return null;
-}
 
     gameLoop() {
         
@@ -347,12 +379,64 @@ class Juego {
 
         this.textoTiempo.text = `${mm}:${ss}`;
 
-        // ORDENAR PROFUNDIDAD DE ENTIDADES ⊹ . ݁˖ . ݁
-
         this.layerCiviles.sortChildren();
         this.layerCivilesQuietos.sortChildren();
         this.layerJugador.sortChildren();
         this.layerEntidades.sortChildren();  
+
+    // ─────────────────────────────
+    // COLISIÓN HITBOX CHORIPANERÍA (AABB correcto)
+    // ─────────────────────────────
+    if (this.hitboxChori) {
+
+        const hb = this.hitboxChori;
+
+        const hbLeft = hb.x;
+        const hbRight = hb.x + hb.width;
+        const hbTop = hb.y;
+        const hbBottom = hb.y + hb.height;
+
+        // Radio aproximado del jugador (ajustalo si querés)
+        const r = 30;
+
+        let px = this.jugador.x;
+        let py = this.jugador.y;
+
+        // ¿El jugador está intentando entrar al rectángulo?
+        const overlapX = px + r > hbLeft && px - r < hbRight;
+        const overlapY = py + r > hbTop  && py - r < hbBottom;
+
+        if (overlapX && overlapY) {
+
+            // Distancias a cada borde
+            const distTop = Math.abs((py + r) - hbTop);
+            const distBottom = Math.abs((py - r) - hbBottom);
+            const distLeft = Math.abs((px + r) - hbLeft);
+            const distRight = Math.abs((px - r) - hbRight);
+
+            const minDist = Math.min(distTop, distBottom, distLeft, distRight);
+
+            // Resolver por el lado más cercano
+            if (minDist === distTop) {
+                // Bloquea desde arriba (jugador encima)
+                this.jugador.y = hbTop - r;
+            }
+            else if (minDist === distBottom) {
+                // Bloquea desde abajo
+                this.jugador.y = hbBottom + r;
+            }
+            else if (minDist === distLeft) {
+                // Bloquea desde izquierda
+                this.jugador.x = hbLeft - r;
+            }
+            else if (minDist === distRight) {
+                // Bloquea desde derecha
+                this.jugador.x = hbRight + r;
+            }
+        }
+    }
+
+
     }
 
 }
