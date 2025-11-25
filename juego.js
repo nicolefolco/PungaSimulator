@@ -31,7 +31,7 @@ class Juego {
         globalThis.__PIXI_APP__ = this.app;
 
         await this.app.init({
-            background: "#ff32ff",
+            background: "#3f505e",
             width: 1920,
             height: 960
         });
