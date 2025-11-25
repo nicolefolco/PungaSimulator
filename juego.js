@@ -387,6 +387,8 @@ class Juego {
 
         this.estadoActual = "pantallaFinal";
 
+        //this.celularesRobados = this.contadorExitos;
+
         // Detener ticker y limpiar listeners
         if (this.ticker) {
             this.app.ticker.remove(this.ticker);
@@ -400,13 +402,30 @@ class Juego {
         this.cameraContainer.removeChildren();
 
         // Cargar textura final
-        const finalTextura = await PIXI.Assets.load("assets/pantallaFinal.jpg");
+        const finalTextura = await PIXI.Assets.load("assets/pantallaFinal.png");
         this.pantallaFinal = new PIXI.Sprite(finalTextura);
         this.pantallaFinal.width = 1920;
         this.pantallaFinal.height = 960;
         this.cameraContainer.addChild(this.pantallaFinal);
 
         console.log("pantalla final abierto");
+
+        this.textoCelularesRobados = new PIXI.Text(
+            `Celulares robados: ${this.contadorExitos}`, // <-- todo en un string
+            {
+                fill: "white",
+                fontSize: 150,
+                fontFamily: "Pix32",
+                align: "center"
+            }
+        );
+
+        // Posicionar texto en pantalla
+        this.textoCelularesRobados.anchor.set(0.5); // centra el texto
+        this.textoCelularesRobados.x = this.app.screen.width / 2;
+        this.textoCelularesRobados.y = this.app.screen.height / 2;
+
+        this.cameraContainer.addChild(this.textoCelularesRobados);
     }
 
     gameLoop() {
@@ -466,7 +485,7 @@ class Juego {
 
         this.textoTiempo.text = `${mm}:${ss}`;
 
-        if (mm === "01" && ss === "45" && !this.pantallaFinalMostrada) {
+        if (mm === "00" && ss === "00" && !this.pantallaFinalMostrada) {
             this.mostrarPantallaFinal();
         }
 
